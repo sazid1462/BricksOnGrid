@@ -1,0 +1,66 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0099cc"
+    android:keepScreenOn="true"
+    android:orientation="vertical"
+    tools:context="com.shakeme.sazedul.games.bricksongrid.MainMenuActivity">
+
+    <TextView
+        android:padding="@dimen/abc_action_bar_stacked_max_height"
+        android:paddingTop="@dimen/padding_all"
+        android:paddingBottom="@dimen/title_bottom"
+        android:gravity="center"
+        android:text="@string/app_title"
+        android:textSize="@dimen/main_menu_title"
+        android:textStyle="bold"
+        android:textColor="@color/title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:padding="@dimen/abc_action_bar_stacked_max_height"
+        android:orientation="vertical"
+        style="@style/ButtonBar"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btn_new_game"
+            style="@style/ButtonBarButton"
+            android:text="@string/btn_new_game"
+            android:onClick="showGameActivity"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/btn_settings"
+            style="@style/ButtonBarButton"
+            android:text="@string/btn_settings"
+            android:onClick="showSettingsActivity"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/btn_instructions"
+            style="@style/ButtonBarButton"
+            android:text="@string/btn_instructions"
+            android:onClick="showInstructionsActivity"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/btn_about"
+            style="@style/ButtonBarButton"
+            android:text="@string/btn_credits"
+            android:onClick="showCreditsActivity"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/btn_exit"
+            style="@style/ButtonBarButton"
+            android:text="@string/btn_exit"
+            android:onClick="exitActivity"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+</LinearLayout>

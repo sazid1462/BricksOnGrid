@@ -1,0 +1,7 @@
+<resources>
+
+    <color name="black_overlay">#66000000</color>
+    <color name="button_normal">#000000</color>
+    <color name="title">#aff074</color>
+
+</resources>

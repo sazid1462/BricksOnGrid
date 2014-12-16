@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Bricks On Grid</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="app_name_on_splash">BRICKS\nON GRID</string>
+    <string name="title_activity_main_menu">Bricks On Grid</string>
+    <string name="btn_new_game">New Game</string>
+    <string name="app_title">BRICKS ON GRID</string>
+    <string name="btn_settings">Settings</string>
+    <string name="btn_instructions">Instructions</string>
+    <string name="btn_exit">Exit</string>
+    <string name="btn_credits">Credits</string>
+    <string name="title_activity_game">GameActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_instruction">InstructionActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_credits">CreditsActivity</string>
+
+</resources>
