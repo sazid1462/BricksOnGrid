@@ -18,5 +18,9 @@
     <string name="title_activity_instruction">InstructionActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="title_activity_credits">CreditsActivity</string>
+    <string name="whose_turn">Your turn!</string>
+    <string name="you_score">Your score:</string>
+    <string name="rival_score">Rival\'s score:</string>
+    <string name="initial_score">0</string>
 
 </resources>

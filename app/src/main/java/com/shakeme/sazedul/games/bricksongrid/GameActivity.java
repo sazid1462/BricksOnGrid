@@ -19,8 +19,8 @@ public class GameActivity extends Activity {
         setContentView(R.layout.activity_game);
 
         gameView = (GridView) findViewById(R.id.gridView);
-
-        
+        gameView.setMinimumHeight(gameView.getWidth());
+        gameView.setAdapter(new GameAdapter(this));
     }
 
 

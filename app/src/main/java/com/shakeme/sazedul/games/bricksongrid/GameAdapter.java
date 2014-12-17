@@ -15,27 +15,21 @@ import java.util.ArrayList;
 
 class GameAdapter extends BaseAdapter {
 
-    private static final int MAX_CELL = 100;
-    ArrayList<Integer> list;
+    private static final int MAX_CELL = 64;
     Context context;
 
     public GameAdapter (Context context) {
         this.context = context;
-        list = new ArrayList<Integer>();
-
-        for (int i=0; i<MAX_CELL; i++) {
-            list.add(R.drawable.cell);
-        }
     }
 
     @Override
     public int getCount() {
-        return list.size();
+        return MAX_CELL;
     }
 
     @Override
     public Object getItem(int position) {
-        return list.get(position);
+        return R.drawable.cell;
     }
 
     @Override
@@ -45,8 +39,19 @@ class GameAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.cell_view, parent, false);
-        return null;
+        View row = convertView;
+        ViewHolder holder;
+
+        if (row==null) {
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            row = inflater.inflate(R.layout.cell_view, parent, false);
+            holder = new ViewHolder(row);
+            row.setTag(holder);
+        } else {
+            holder = (ViewHolder) row.getTag();
+        }
+
+        holder.cell.setImageResource(R.drawable.cell);
+        return row;
     }
 }
