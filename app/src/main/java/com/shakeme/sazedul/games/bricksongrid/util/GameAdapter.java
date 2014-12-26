@@ -8,32 +8,43 @@ import android.widget.BaseAdapter;
 
 import com.shakeme.sazedul.games.bricksongrid.R;
 
+import java.util.ArrayList;
+
 /**
  * Created by Sazedul on 17-Dec-14.
  */
 
 public class GameAdapter extends BaseAdapter {
 
-    private static final int MAX_CELL = 64;
     Context context;
+    ArrayList<Integer> list;
 
     public GameAdapter (Context context) {
         this.context = context;
+        list = new ArrayList<>();
+
+        for (int i=0; i<GameUtils.MAX_CELL; i++) {
+            list.add(R.drawable.cell);
+        }
     }
 
     @Override
     public int getCount() {
-        return MAX_CELL;
+        return GameUtils.MAX_CELL;
     }
 
     @Override
     public Object getItem(int position) {
-        return R.drawable.cell;
+        return list.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return position;
+    }
+
+    public void setItem(int position, int imageId) {
+        list.set(position, imageId);
     }
 
     @Override
@@ -50,7 +61,7 @@ public class GameAdapter extends BaseAdapter {
             holder = (ViewHolder) row.getTag();
         }
 
-        holder.cell.setImageResource(R.drawable.cell);
+        holder.cell.setImageResource(list.get(position));
         return row;
     }
 }
