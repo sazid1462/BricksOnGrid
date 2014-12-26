@@ -1,19 +1,18 @@
-package com.shakeme.sazedul.games.bricksongrid;
+package com.shakeme.sazedul.games.bricksongrid.util;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import java.util.ArrayList;
+import com.shakeme.sazedul.games.bricksongrid.R;
 
 /**
  * Created by Sazedul on 17-Dec-14.
  */
 
-class GameAdapter extends BaseAdapter {
+public class GameAdapter extends BaseAdapter {
 
     private static final int MAX_CELL = 64;
     Context context;

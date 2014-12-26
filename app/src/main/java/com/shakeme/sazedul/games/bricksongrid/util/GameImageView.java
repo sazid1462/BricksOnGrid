@@ -1,4 +1,4 @@
-package com.shakeme.sazedul.games.bricksongrid;
+package com.shakeme.sazedul.games.bricksongrid.util;
 
 import android.annotation.TargetApi;
 import android.content.Context;

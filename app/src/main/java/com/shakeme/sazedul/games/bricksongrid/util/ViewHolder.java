@@ -1,7 +1,9 @@
-package com.shakeme.sazedul.games.bricksongrid;
+package com.shakeme.sazedul.games.bricksongrid.util;
 
 import android.view.View;
 import android.widget.ImageView;
+
+import com.shakeme.sazedul.games.bricksongrid.R;
 
 /**
  * Created by Sazedul on 17-Dec-14.

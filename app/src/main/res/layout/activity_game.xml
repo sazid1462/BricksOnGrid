@@ -57,7 +57,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <com.shakeme.sazedul.games.bricksongrid.GameView
+    <com.shakeme.sazedul.games.bricksongrid.util.GameView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/gridView"
