@@ -55,7 +55,7 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         setContentView(R.layout.activity_game);
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        mpMainMenu = MediaPlayer.create(this, R.raw.welcome);
+        mpMainMenu = MediaPlayer.create(this, R.raw.game);
         mpBrick = MediaPlayer.create(this, R.raw.brick);
         mpMainMenu.setLooping(true);
 
