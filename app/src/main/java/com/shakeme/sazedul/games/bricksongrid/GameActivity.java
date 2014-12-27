@@ -1,13 +1,14 @@
 package com.shakeme.sazedul.games.bricksongrid;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.Log;
 import android.view.GestureDetector;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,7 +20,7 @@ import com.shakeme.sazedul.games.bricksongrid.util.GameAdapter;
 import com.shakeme.sazedul.games.bricksongrid.util.GameUtils;
 
 
-public class GameActivity extends Activity {
+public class GameActivity extends Activity implements AudioManager.OnAudioFocusChangeListener{
 
     private int gridState[] = new int[GameUtils.MAX_CELL];
     private GridView gameView;
@@ -44,10 +45,21 @@ public class GameActivity extends Activity {
 
     private boolean playerTurn;
 
+    private MediaPlayer mpMainMenu;
+    private MediaPlayer mpBrick;
+    private AudioManager audioManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+
+        audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        mpMainMenu = MediaPlayer.create(this, R.raw.welcome);
+        mpBrick = MediaPlayer.create(this, R.raw.brick);
+        mpMainMenu.setLooping(true);
+
+        startPlayback();
 
         // Instantiate variables
         gameView = (GridView) findViewById(R.id.gridView);
@@ -82,25 +94,31 @@ public class GameActivity extends Activity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_game, menu);
-        return true;
+    protected void onPause() {
+        super.onPause();
+
+        pausePlayback();
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    protected void onResume() {
+        super.onResume();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        resumePlayback();
+    }
 
-        return super.onOptionsItemSelected(item);
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        stopPlayback();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mpBrick.release();
+        mpMainMenu.release();
     }
 
     private void initializeGame () {
@@ -133,6 +151,64 @@ public class GameActivity extends Activity {
             cnt--;
         }
         gameAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
+            // Pause playback
+            pausePlayback();
+        } if (focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+            // Lower the volume
+            duckPlayback();
+        } else if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+            // Resume playback
+            startPlayback();
+        } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS) {
+            stopPlayback();
+        }
+    }
+
+    private void startPlayback() {
+        if (musicEnabled) {
+            // Request audio focus for playback
+            int result = audioManager.requestAudioFocus(this,
+                    // Use the music stream.
+                    AudioManager.STREAM_MUSIC,
+                    // Request permanent focus.
+                    AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
+
+            if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                resumePlayback();
+            }
+        }
+    }
+
+    private void stopPlayback() {
+        if (musicEnabled) {
+            audioManager.abandonAudioFocus(this);
+            // Stop playback
+            mpMainMenu.pause();
+        }
+    }
+
+    private void pausePlayback() {
+        if (musicEnabled) {
+            mpMainMenu.pause();
+        }
+    }
+
+    private void resumePlayback() {
+        if (musicEnabled) {
+            mpMainMenu.start();
+            mpMainMenu.setVolume(1f, 1f);
+        }
+    }
+
+    private void duckPlayback() {
+        if (musicEnabled) {
+            mpMainMenu.setVolume(0.5f, 0.5f);
+        }
     }
 
     /**
@@ -208,6 +284,7 @@ public class GameActivity extends Activity {
                     gameAdapter.setItem(pos2, R.drawable.cell_brick_left);
                     gridState[pos1] = gridState[pos2] = 1;
                     gameAdapter.notifyDataSetChanged();
+                    if (soundEnabled) mpBrick.start();
                 }
             }
         }
@@ -220,6 +297,7 @@ public class GameActivity extends Activity {
                     gameAdapter.setItem(pos2, R.drawable.cell_brick_right);
                     gridState[pos1] = gridState[pos2] = 1;
                     gameAdapter.notifyDataSetChanged();
+                    if (soundEnabled) mpBrick.start();
                 }
             }
         }
@@ -232,6 +310,7 @@ public class GameActivity extends Activity {
                     gameAdapter.setItem(pos2, R.drawable.cell_brick_top);
                     gridState[pos1] = gridState[pos2] = 1;
                     gameAdapter.notifyDataSetChanged();
+                    if (soundEnabled) mpBrick.start();
                 }
             }
         }
@@ -244,6 +323,7 @@ public class GameActivity extends Activity {
                     gameAdapter.setItem(pos2, R.drawable.cell_brick_bottom);
                     gridState[pos1] = gridState[pos2] = 1;
                     gameAdapter.notifyDataSetChanged();
+                    if (soundEnabled) mpBrick.start();
                 }
             }
         }
