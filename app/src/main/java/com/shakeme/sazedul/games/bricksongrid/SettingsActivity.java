@@ -7,13 +7,16 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Switch;
 
 import com.shakeme.sazedul.games.bricksongrid.util.GameUtils;
 
 
-public class SettingsActivity extends Activity implements AudioManager.OnAudioFocusChangeListener {
+public class SettingsActivity extends Activity implements
+        AudioManager.OnAudioFocusChangeListener,
+        CompoundButton.OnCheckedChangeListener{
 
     private SharedPreferences prefSettings;
 
@@ -59,11 +62,16 @@ public class SettingsActivity extends Activity implements AudioManager.OnAudioFo
         boolean classic = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.CLASSIC_TAG, GameUtils.DEFAULT_CLASSIC);
 
         txtName.setText(name);
-        txtBlocked.setText(blockedCell);
+        txtBlocked.setText(Integer.toString(blockedCell));
         musicEnabled.setChecked(music);
         soundEnabled.setChecked(sound);
         aiEnabled.setChecked(ai);
         classicEnabled.setChecked(classic);
+
+        musicEnabled.setOnCheckedChangeListener(this);
+        soundEnabled.setOnCheckedChangeListener(this);
+        aiEnabled.setOnCheckedChangeListener(this);
+        classicEnabled.setOnCheckedChangeListener(this);
     }
 
     @Override
@@ -178,5 +186,10 @@ public class SettingsActivity extends Activity implements AudioManager.OnAudioFo
         if (music) {
             mpMainMenu.setVolume(0.5f, 0.5f);
         }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if (sound) mpButton.start();
     }
 }

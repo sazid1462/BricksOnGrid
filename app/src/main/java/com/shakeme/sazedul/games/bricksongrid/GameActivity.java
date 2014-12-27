@@ -46,7 +46,8 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
     private boolean playerTurn;
 
     private MediaPlayer mpMainMenu;
-    private MediaPlayer mpBrick;
+    private MediaPlayer mpBrickPlayer;
+    private MediaPlayer mpBrickRival;
     private AudioManager audioManager;
 
     @Override
@@ -56,7 +57,8 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mpMainMenu = MediaPlayer.create(this, R.raw.game);
-        mpBrick = MediaPlayer.create(this, R.raw.brick);
+        mpBrickPlayer = MediaPlayer.create(this, R.raw.brick);
+        mpBrickRival = MediaPlayer.create(this, R.raw.brick);
         mpMainMenu.setLooping(true);
 
         startPlayback();
@@ -117,14 +119,15 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mpBrick.release();
+        mpBrickRival.release();
+        mpBrickPlayer.release();
         mpMainMenu.release();
     }
 
     private void initializeGame () {
         if (classicEnabled) {
-            txtYourScore.setVisibility(View.INVISIBLE);
-            txtRivalScore.setVisibility(View.INVISIBLE);
+            layoutYourScore.setVisibility(View.INVISIBLE);
+            layoutRivalScore.setVisibility(View.INVISIBLE);
         }
         if (playerTurn) {
             txtYourTurn.setVisibility(View.VISIBLE);
@@ -284,7 +287,7 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
                     gameAdapter.setItem(pos2, R.drawable.cell_brick_left);
                     gridState[pos1] = gridState[pos2] = 1;
                     gameAdapter.notifyDataSetChanged();
-                    if (soundEnabled) mpBrick.start();
+                    if (soundEnabled) mpBrickPlayer.start();
                 }
             }
         }
@@ -297,7 +300,7 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
                     gameAdapter.setItem(pos2, R.drawable.cell_brick_right);
                     gridState[pos1] = gridState[pos2] = 1;
                     gameAdapter.notifyDataSetChanged();
-                    if (soundEnabled) mpBrick.start();
+                    if (soundEnabled) mpBrickPlayer.start();
                 }
             }
         }
@@ -310,7 +313,7 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
                     gameAdapter.setItem(pos2, R.drawable.cell_brick_top);
                     gridState[pos1] = gridState[pos2] = 1;
                     gameAdapter.notifyDataSetChanged();
-                    if (soundEnabled) mpBrick.start();
+                    if (soundEnabled) mpBrickPlayer.start();
                 }
             }
         }
@@ -323,7 +326,7 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
                     gameAdapter.setItem(pos2, R.drawable.cell_brick_bottom);
                     gridState[pos1] = gridState[pos2] = 1;
                     gameAdapter.notifyDataSetChanged();
-                    if (soundEnabled) mpBrick.start();
+                    if (soundEnabled) mpBrickPlayer.start();
                 }
             }
         }
