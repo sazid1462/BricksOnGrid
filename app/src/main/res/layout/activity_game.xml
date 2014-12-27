@@ -24,6 +24,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
         <LinearLayout
+            android:id="@+id/your_score"
             android:layout_width="fill_parent"
             android:orientation="horizontal"
             android:layout_height="wrap_content">
@@ -35,11 +36,12 @@
             <TextView
                 android:id="@+id/txt_your_score"
                 android:text="@string/initial_score"
-                android:textColor="@color/green"
+                android:textColor="@color/red"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/rival_score"
             android:layout_width="fill_parent"
             android:orientation="horizontal"
             android:layout_height="wrap_content">
@@ -51,7 +53,7 @@
             <TextView
                 android:id="@+id/txt_rival_score"
                 android:text="@string/initial_score"
-                android:textColor="@color/red"
+                android:textColor="@color/blue"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
         </LinearLayout>
@@ -66,5 +68,25 @@
         android:verticalSpacing="0dp"
         android:horizontalSpacing="0dp"
         android:layout_gravity="center_horizontal" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/your_turn"
+            android:text="@string/your_turn"
+            android:gravity="center_horizontal"
+            android:textColor="@color/red"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/rival_turn"
+            android:text="@string/rival_turn"
+            android:gravity="center_horizontal"
+            android:textColor="@color/blue"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
 </LinearLayout>

@@ -1,6 +1,7 @@
 package com.shakeme.sazedul.games.bricksongrid;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.Log;
@@ -11,6 +12,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.shakeme.sazedul.games.bricksongrid.util.GameAdapter;
 import com.shakeme.sazedul.games.bricksongrid.util.GameUtils;
@@ -23,14 +26,52 @@ public class GameActivity extends Activity {
     private GameAdapter gameAdapter;
     private GestureDetectorCompat mDetector;
 
+    private SharedPreferences prefSettings;
+
+    private String name;
+    private int blockedCell;
+    private boolean musicEnabled;
+    private boolean soundEnabled;
+    private boolean aiEnabled;
+    private boolean classicEnabled;
+
+    private LinearLayout layoutYourScore;
+    private LinearLayout layoutRivalScore;
+    private TextView txtYourScore;
+    private TextView txtRivalScore;
+    private TextView txtRivalTurn;
+    private TextView txtYourTurn;
+
+    private boolean playerTurn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
+        // Instantiate variables
         gameView = (GridView) findViewById(R.id.gridView);
         gameAdapter = new GameAdapter(this);
         gameView.setAdapter(gameAdapter);
+        prefSettings = getSharedPreferences(GameUtils.SHARED_PREF_SETTINGS, MODE_PRIVATE);
+        layoutYourScore = (LinearLayout) findViewById(R.id.your_score);
+        layoutRivalScore = (LinearLayout) findViewById(R.id.rival_score);
+        txtYourScore = (TextView) findViewById(R.id.txt_your_score);
+        txtRivalScore = (TextView) findViewById(R.id.txt_rival_score);
+        txtYourTurn = (TextView) findViewById(R.id.your_turn);
+        txtRivalTurn = (TextView) findViewById(R.id.rival_turn);
+        playerTurn = ((Math.round(Math.random()*997))%2 == 1);
+
+        // Get the settings from SharedPreferences
+        name = prefSettings.getString(GameUtils.APP_TAG+GameUtils.NAME_TAG, GameUtils.DEFAULT_NAME);
+        blockedCell = prefSettings.getInt(GameUtils.APP_TAG+GameUtils.BLOCKED_TILE_TAG, GameUtils.DEFAULT_BLOCKED);
+        musicEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.MUSIC_TAG, GameUtils.DEFAULT_MUSIC);
+        soundEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.SOUND_TAG, GameUtils.DEFAULT_SOUND);
+        aiEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.AI_TAG, GameUtils.DEFAULT_AI);
+        classicEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.CLASSIC_TAG, GameUtils.DEFAULT_CLASSIC);
+
+        initializeGame();
+
         mDetector = new GestureDetectorCompat(this, new GameGestureListener());
         gameView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -39,7 +80,6 @@ public class GameActivity extends Activity {
             }
         });
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -61,6 +101,38 @@ public class GameActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void initializeGame () {
+        if (classicEnabled) {
+            txtYourScore.setVisibility(View.INVISIBLE);
+            txtRivalScore.setVisibility(View.INVISIBLE);
+        }
+        if (playerTurn) {
+            txtYourTurn.setVisibility(View.VISIBLE);
+            txtRivalTurn.setVisibility(View.GONE);
+        } else {
+            txtYourTurn.setVisibility(View.GONE);
+            txtRivalTurn.setVisibility(View.VISIBLE);
+        }
+        if (blockedCell != 0) {
+            blockTheCells();
+        }
+    }
+
+    private void blockTheCells () {
+        int cnt = blockedCell;
+
+        while (cnt > 0) {
+            int cell = (int) (Math.round(Math.random()*997)%GameUtils.MAX_CELL);
+            while (gridState[cell] != 0) {
+                cell = (int) (Math.round(Math.random()*997)%GameUtils.MAX_CELL);
+            }
+            gridState[cell] = 2;
+            gameAdapter.setItem(cell, R.drawable.obstacle);
+            cnt--;
+        }
+        gameAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -92,7 +164,7 @@ public class GameActivity extends Activity {
                ) {
                 onScrollLeft(
                         gameView.pointToPosition(Math.round(e1.getX()), Math.round(e1.getY())),
-                        gameView.pointToPosition(Math.round(e1.getX()-gameView.getColumnWidth()), Math.round(e2.getY()))
+                        gameView.pointToPosition(Math.round(e1.getX()-gameView.getColumnWidth()), Math.round(e1.getY()))
                 );
             }
             else if (

@@ -22,5 +22,17 @@
     <string name="you_score">Your score:</string>
     <string name="rival_score">Rival\'s score:</string>
     <string name="initial_score">0</string>
+    <string name="blocked_tile">Max blocked tile:</string>
+    <string name="blocked_tile_hint">0 to 16</string>
+    <string name="ambient_music">Ambient music:</string>
+    <string name="sound_effect">Sound effect:</string>
+    <string name="ai_rival">AI Rival:</string>
+    <string name="btn_ok">OK</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="classic_mode">Classic mode:</string>
+    <string name="player_name">Your name:</string>
+    <string name="hint_name">Type your name</string>
+    <string name="your_turn">Your turn!</string>
+    <string name="rival_turn">Rival\'s turn</string>
 
 </resources>
