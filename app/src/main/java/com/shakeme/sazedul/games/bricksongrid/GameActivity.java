@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +50,7 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
     private TextView txtRivalScore;
     private TextView txtRivalTurn;
     private TextView txtYourTurn;
+    private ProgressBar progressAI;
 
     private boolean playerTurn;
 
@@ -98,6 +100,7 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         txtRivalScore = (TextView) findViewById(R.id.txt_rival_score);
         txtYourTurn = (TextView) findViewById(R.id.your_turn);
         txtRivalTurn = (TextView) findViewById(R.id.rival_turn);
+        progressAI = (ProgressBar) findViewById(R.id.progress_ai);
         playerTurn = ((Math.round(Math.random()*997))%2 == 1);
 
         initializeGame();
@@ -511,6 +514,7 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         @Override
         protected void onPreExecute() {
             Log.d(GameUtils.AI_THINKING_TAG, "Wait buddy, let me think.");
+            progressAI.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -523,9 +527,10 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         @Override
         protected void onPostExecute(final Integer[] integers) {
             Log.d(GameUtils.AI_THINKING_TAG, "I've finished my thinking.");
+            progressAI.setVisibility(View.GONE);
 
             if (integers[0] == -1 || integers[1] == -1) {
-                Toast.makeText(GameActivity.this, "You Win!", Toast.LENGTH_LONG);
+                Toast.makeText(GameActivity.this, "You Win!", Toast.LENGTH_LONG).show();
             } else {
                 runOnUiThread(new Runnable() {
                     @Override

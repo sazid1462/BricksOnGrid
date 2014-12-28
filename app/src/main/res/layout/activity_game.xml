@@ -88,4 +88,10 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
+    <ProgressBar
+        android:id="@+id/progress_ai"
+        android:visibility="gone"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
 </LinearLayout>
