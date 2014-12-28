@@ -66,6 +66,32 @@
             android:orientation="horizontal">
 
             <TextView
+                android:text="@string/dimension"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:layout_weight="5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+            <EditText
+                android:id="@+id/txt_dim"
+                android:background="@color/black_overlay"
+                android:textColor="@color/white"
+                android:layout_weight="6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/dimension_hint"
+                android:inputType="number" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:paddingLeft="@dimen/padding_all"
+            android:paddingRight="@dimen/padding_all"
+            android:paddingBottom="@dimen/padding_game"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
                 android:text="@string/blocked_tile"
                 android:textColor="@color/white"
                 android:textSize="16sp"

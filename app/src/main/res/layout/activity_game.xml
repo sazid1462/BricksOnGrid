@@ -63,7 +63,6 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/gridView"
-        android:numColumns="8"
         android:stretchMode="columnWidth"
         android:verticalSpacing="0dp"
         android:horizontalSpacing="0dp"

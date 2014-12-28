@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.shakeme.sazedul.games.bricksongrid.util.GameAdapter;
 import com.shakeme.sazedul.games.bricksongrid.util.GameUtils;
@@ -22,7 +24,11 @@ import com.shakeme.sazedul.games.bricksongrid.util.GameUtils;
 
 public class GameActivity extends Activity implements AudioManager.OnAudioFocusChangeListener{
 
-    private int gridState[] = new int[GameUtils.MAX_CELL];
+    private int MAX_CELL;
+    private int MAX_ROW;
+    private int MAX_COL;
+
+    private int gridState[];
     private GridView gameView;
     private GameAdapter gameAdapter;
     private GestureDetectorCompat mDetector;
@@ -31,6 +37,7 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
 
     private String name;
     private int blockedCell;
+    private int dim;
     private boolean musicEnabled;
     private boolean soundEnabled;
     private boolean aiEnabled;
@@ -63,11 +70,28 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
 
         startPlayback();
 
+        prefSettings = getSharedPreferences(GameUtils.SHARED_PREF_SETTINGS, MODE_PRIVATE);
+        // Get the settings from SharedPreferences
+        name = prefSettings.getString(GameUtils.APP_TAG+GameUtils.NAME_TAG, GameUtils.DEFAULT_NAME);
+        blockedCell = prefSettings.getInt(GameUtils.APP_TAG+GameUtils.BLOCKED_TILE_TAG, GameUtils.DEFAULT_BLOCKED);
+        dim = prefSettings.getInt(GameUtils.APP_TAG+GameUtils.DIMENSION_TAG, GameUtils.DEFAULT_DIMENSION);
+        musicEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.MUSIC_TAG, GameUtils.DEFAULT_MUSIC);
+        soundEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.SOUND_TAG, GameUtils.DEFAULT_SOUND);
+        aiEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.AI_TAG, GameUtils.DEFAULT_AI);
+        classicEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.CLASSIC_TAG, GameUtils.DEFAULT_CLASSIC);
+
+        GameUtils.MAX_CELL = dim*dim;
+        GameUtils.MAX_ROW = dim;
+        GameUtils.MAX_COL = dim;
+        MAX_CELL = GameUtils.MAX_CELL;
+        MAX_ROW = GameUtils.MAX_ROW;
+        MAX_COL = GameUtils.MAX_COL;
+        gridState = new int[MAX_CELL];
+
         // Instantiate variables
         gameView = (GridView) findViewById(R.id.gridView);
         gameAdapter = new GameAdapter(this);
         gameView.setAdapter(gameAdapter);
-        prefSettings = getSharedPreferences(GameUtils.SHARED_PREF_SETTINGS, MODE_PRIVATE);
         layoutYourScore = (LinearLayout) findViewById(R.id.your_score);
         layoutRivalScore = (LinearLayout) findViewById(R.id.rival_score);
         txtYourScore = (TextView) findViewById(R.id.txt_your_score);
@@ -75,14 +99,6 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         txtYourTurn = (TextView) findViewById(R.id.your_turn);
         txtRivalTurn = (TextView) findViewById(R.id.rival_turn);
         playerTurn = ((Math.round(Math.random()*997))%2 == 1);
-
-        // Get the settings from SharedPreferences
-        name = prefSettings.getString(GameUtils.APP_TAG+GameUtils.NAME_TAG, GameUtils.DEFAULT_NAME);
-        blockedCell = prefSettings.getInt(GameUtils.APP_TAG+GameUtils.BLOCKED_TILE_TAG, GameUtils.DEFAULT_BLOCKED);
-        musicEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.MUSIC_TAG, GameUtils.DEFAULT_MUSIC);
-        soundEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.SOUND_TAG, GameUtils.DEFAULT_SOUND);
-        aiEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.AI_TAG, GameUtils.DEFAULT_AI);
-        classicEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.CLASSIC_TAG, GameUtils.DEFAULT_CLASSIC);
 
         initializeGame();
 
@@ -125,10 +141,25 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
     }
 
     private void initializeGame () {
-        if (classicEnabled) {
-            layoutYourScore.setVisibility(View.INVISIBLE);
-            layoutRivalScore.setVisibility(View.INVISIBLE);
+        gameView.setNumColumns(MAX_COL);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (classicEnabled) {
+                    layoutYourScore.setVisibility(View.INVISIBLE);
+                    layoutRivalScore.setVisibility(View.INVISIBLE);
+                }
+                showWhoseTurn();
+            }
+        });
+        if (blockedCell != 0) {
+            blockTheCells();
         }
+
+        if (!playerTurn) notifyAI();
+    }
+
+    private void showWhoseTurn() {
         if (playerTurn) {
             txtYourTurn.setVisibility(View.VISIBLE);
             txtRivalTurn.setVisibility(View.GONE);
@@ -136,24 +167,35 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
             txtYourTurn.setVisibility(View.GONE);
             txtRivalTurn.setVisibility(View.VISIBLE);
         }
-        if (blockedCell != 0) {
-            blockTheCells();
+    }
+
+    private void notifyAI() {
+        if (classicEnabled) {
+            new ClassicAI().execute();
+        } else {
+            new NonClassicAI().execute();
         }
     }
 
     private void blockTheCells () {
-        int cnt = blockedCell;
 
-        while (cnt > 0) {
-            int cell = (int) (Math.round(Math.random()*997)%GameUtils.MAX_CELL);
-            while (gridState[cell] != 0) {
-                cell = (int) (Math.round(Math.random()*997)%GameUtils.MAX_CELL);
+        new AsyncTask<Void, Void, Void>() {
+            int cnt = blockedCell;
+            @Override
+            protected Void doInBackground(Void... params) {
+                while (cnt > 0) {
+                    int cell = (int) (Math.round(Math.random()*997)%MAX_CELL);
+                    while (gridState[cell] != 0) {
+                        cell = (int) (Math.round(Math.random()*997)%MAX_CELL);
+                    }
+                    gridState[cell] = GameUtils.BLOCKED;
+                    gameAdapter.setItem(cell, R.drawable.obstacle);
+                    cnt--;
+                }
+                gameAdapter.notifyDataSetChanged();
+                return null;
             }
-            gridState[cell] = 2;
-            gameAdapter.setItem(cell, R.drawable.obstacle);
-            cnt--;
-        }
-        gameAdapter.notifyDataSetChanged();
+        }.execute();
     }
 
     @Override
@@ -217,7 +259,7 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
     /**
      * Created by Sazedul on 26-Dec-14.
      */
-    public class GameGestureListener extends GestureDetector.SimpleOnGestureListener {
+    private class GameGestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
         public boolean onDown(MotionEvent event) {
@@ -236,58 +278,61 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 //            Log.d(DEBUG_TAG, "onScroll: " + e1.toString()+e2.toString());
-            if (
-                    e1.getX() - e2.getX() > gameView.getColumnWidth()
-                            &&
-                    Math.abs(e1.getY() - e2.getY()) < gameView.getColumnWidth()
-               ) {
-                onScrollLeft(
-                        gameView.pointToPosition(Math.round(e1.getX()), Math.round(e1.getY())),
-                        gameView.pointToPosition(Math.round(e1.getX()-gameView.getColumnWidth()), Math.round(e1.getY()))
-                );
-            }
-            else if (
+            if (playerTurn) {
+                if (
+                        e1.getX() - e2.getX() > gameView.getColumnWidth()
+                                &&
+                                Math.abs(e1.getY() - e2.getY()) < gameView.getColumnWidth()
+                        ) {
+                    onScrollLeft(
+                            gameView.pointToPosition(Math.round(e1.getX()), Math.round(e1.getY())),
+                            gameView.pointToPosition(Math.round(e1.getX() - gameView.getColumnWidth()), Math.round(e1.getY()))
+                    );
+                } else if (
                         e2.getX() - e1.getX() > gameView.getColumnWidth()
-                            &&
-                        Math.abs(e1.getY() - e2.getY()) < gameView.getColumnWidth()
-                    ) {
+                                &&
+                                Math.abs(e1.getY() - e2.getY()) < gameView.getColumnWidth()
+                        ) {
                     onScrollRight(
                             gameView.pointToPosition(Math.round(e1.getX()), Math.round(e1.getY())),
-                            gameView.pointToPosition(Math.round(e1.getX()+gameView.getColumnWidth()), Math.round(e1.getY()))
+                            gameView.pointToPosition(Math.round(e1.getX() + gameView.getColumnWidth()), Math.round(e1.getY()))
                     );
-            }
-            else if (
+                } else if (
                         e2.getY() - e1.getY() > gameView.getColumnWidth()
-                            &&
-                        Math.abs(e1.getX() - e2.getX()) < gameView.getColumnWidth()
-                    ) {
+                                &&
+                                Math.abs(e1.getX() - e2.getX()) < gameView.getColumnWidth()
+                        ) {
                     onScrollDown(
                             gameView.pointToPosition(Math.round(e1.getX()), Math.round(e1.getY())),
-                            gameView.pointToPosition(Math.round(e1.getX()), Math.round(e1.getY()+gameView.getColumnWidth()))
+                            gameView.pointToPosition(Math.round(e1.getX()), Math.round(e1.getY() + gameView.getColumnWidth()))
                     );
-            }
-            else if (
+                } else if (
                         e1.getY() - e2.getY() > gameView.getColumnWidth()
-                            &&
-                        Math.abs(e1.getX() - e2.getX()) < gameView.getColumnWidth()
-                    ) {
+                                &&
+                                Math.abs(e1.getX() - e2.getX()) < gameView.getColumnWidth()
+                        ) {
                     onScrollUp(
                             gameView.pointToPosition(Math.round(e1.getX()), Math.round(e1.getY())),
-                            gameView.pointToPosition(Math.round(e1.getX()), Math.round(e1.getY()-gameView.getColumnWidth()))
+                            gameView.pointToPosition(Math.round(e1.getX()), Math.round(e1.getY() - gameView.getColumnWidth()))
                     );
+                }
+                return true;
             }
-            return true;
+            return false;
         }
 
         private void onScrollLeft(int pos1, int pos2) {
             Log.d(GameUtils.DEBUG_TAG, "onScroll: Left " + pos1+" "+pos2);
             if (pos1 != AdapterView.INVALID_POSITION && pos2 != AdapterView.INVALID_POSITION) {
-                if (gridState[pos1]==0 && gridState[pos2]==0) {
+                if (gridState[pos1]==GameUtils.BLANK && gridState[pos2]==GameUtils.BLANK) {
                     gameAdapter.setItem(pos1, R.drawable.cell_brick_right);
                     gameAdapter.setItem(pos2, R.drawable.cell_brick_left);
-                    gridState[pos1] = gridState[pos2] = 1;
+                    gridState[pos1] = gridState[pos2] = GameUtils.PLAYER;
                     gameAdapter.notifyDataSetChanged();
                     if (soundEnabled) mpBrickPlayer.start();
+                    playerTurn = false;
+                    showWhoseTurn();
+                    notifyAI();
                 }
             }
         }
@@ -295,12 +340,15 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         private void onScrollRight(int pos1, int pos2) {
             Log.d(GameUtils.DEBUG_TAG, "onScroll: Right " + pos1+" "+pos2);
             if (pos1 != AdapterView.INVALID_POSITION && pos2 != AdapterView.INVALID_POSITION) {
-                if (gridState[pos1]==0 && gridState[pos2]==0) {
+                if (gridState[pos1]==GameUtils.BLANK && gridState[pos2]==GameUtils.BLANK) {
                     gameAdapter.setItem(pos1, R.drawable.cell_brick_left);
                     gameAdapter.setItem(pos2, R.drawable.cell_brick_right);
-                    gridState[pos1] = gridState[pos2] = 1;
+                    gridState[pos1] = gridState[pos2] = GameUtils.PLAYER;
                     gameAdapter.notifyDataSetChanged();
                     if (soundEnabled) mpBrickPlayer.start();
+                    playerTurn = false;
+                    showWhoseTurn();
+                    notifyAI();
                 }
             }
         }
@@ -308,12 +356,15 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         private void onScrollUp(int pos1, int pos2) {
             Log.d(GameUtils.DEBUG_TAG, "onScroll: Up " + pos1+" "+pos2);
             if (pos1 != AdapterView.INVALID_POSITION && pos2 != AdapterView.INVALID_POSITION) {
-                if (gridState[pos1]==0 && gridState[pos2]==0) {
+                if (gridState[pos1]==GameUtils.BLANK && gridState[pos2]==GameUtils.BLANK) {
                     gameAdapter.setItem(pos1, R.drawable.cell_brick_bottom);
                     gameAdapter.setItem(pos2, R.drawable.cell_brick_top);
-                    gridState[pos1] = gridState[pos2] = 1;
+                    gridState[pos1] = gridState[pos2] = GameUtils.PLAYER;
                     gameAdapter.notifyDataSetChanged();
                     if (soundEnabled) mpBrickPlayer.start();
+                    playerTurn = false;
+                    showWhoseTurn();
+                    notifyAI();
                 }
             }
         }
@@ -321,14 +372,195 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         private void onScrollDown(int pos1, int pos2) {
             Log.d(GameUtils.DEBUG_TAG, "onScroll: Down " + pos1+" "+pos2);
             if (pos1 != AdapterView.INVALID_POSITION && pos2 != AdapterView.INVALID_POSITION) {
-                if (gridState[pos1]==0 && gridState[pos2]==0) {
+                if (gridState[pos1]==GameUtils.BLANK && gridState[pos2]==GameUtils.BLANK) {
                     gameAdapter.setItem(pos1, R.drawable.cell_brick_top);
                     gameAdapter.setItem(pos2, R.drawable.cell_brick_bottom);
-                    gridState[pos1] = gridState[pos2] = 1;
+                    gridState[pos1] = gridState[pos2] = GameUtils.PLAYER;
                     gameAdapter.notifyDataSetChanged();
                     if (soundEnabled) mpBrickPlayer.start();
+                    playerTurn = false;
+                    showWhoseTurn();
+                    notifyAI();
                 }
             }
+        }
+    }
+
+    /**
+     * Created by Sazedul on 28-Dec-14.
+     */
+    private class ClassicAI extends AsyncTask<Void, Void, Integer[]> {
+        int col[][] = new int[MAX_ROW][MAX_COL];
+
+        private void gridStateToColorArray() {
+            for (int i=0; i<MAX_ROW; i++) {
+                System.arraycopy(gridState, i * MAX_ROW, col[i], 0, MAX_COL);
+            }
+        }
+
+        private int calculateHuristics(boolean myTurn, int parentValue) {
+//            Log.d(GameUtils.AI_THINKING_TAG, "I'm still thinking... "+myTurn+" "+parentValue);
+            int curValue;
+            int tempValue;
+
+            if (myTurn) {
+
+                curValue = -1;
+                for (int i=0; i<MAX_ROW; i++) {
+                    for (int j=0; j<MAX_COL; j++) {
+                        if (col[i][j] == GameUtils.BLANK) {
+                            if (j+1<MAX_COL && col[i][j+1]==GameUtils.BLANK) {
+
+                                col[i][j] = col[i][j+1] = GameUtils.RIVAL;
+                                tempValue = calculateHuristics(false, curValue);
+                                col[i][j] = col[i][j+1] = GameUtils.BLANK;
+
+                                if (curValue < tempValue) {
+                                    curValue = tempValue;
+                                    if (curValue>=parentValue) return curValue;
+                                }
+                            }
+                            if (i+1<MAX_ROW && col[i+1][j]==GameUtils.BLANK) {
+
+                                col[i][j] = col[i+1][j] = GameUtils.RIVAL;
+                                tempValue = calculateHuristics(false, curValue);
+                                col[i][j] = col[i+1][j] = GameUtils.BLANK;
+
+                                if (curValue < tempValue) {
+                                    curValue = tempValue;
+                                    if (curValue>=parentValue) return curValue;
+                                }
+                            }
+                        }
+                    }
+                }
+                return curValue;
+            } else {
+                curValue = 1;
+                for (int i=0; i<MAX_ROW; i++) {
+                    for (int j=0; j<MAX_COL; j++) {
+                        if (col[i][j] == GameUtils.BLANK) {
+                            if (j+1<MAX_COL && col[i][j+1]==GameUtils.BLANK) {
+
+                                col[i][j] = col[i][j+1] = GameUtils.PLAYER;
+                                tempValue = calculateHuristics(true, curValue);
+                                col[i][j] = col[i][j+1] = GameUtils.BLANK;
+
+                                if (curValue > tempValue) {
+                                    curValue = tempValue;
+                                    if (curValue<=parentValue) return curValue;
+                                }
+                            }
+                            if (i+1<MAX_ROW && col[i+1][j]==GameUtils.BLANK) {
+
+                                col[i][j] = col[i+1][j] = GameUtils.PLAYER;
+                                tempValue = calculateHuristics(true, curValue);
+                                col[i][j] = col[i+1][j] = GameUtils.BLANK;
+
+                                if (curValue > tempValue) {
+                                    curValue = tempValue;
+                                    if (curValue<=parentValue) return curValue;
+                                }
+                            }
+                        }
+                    }
+                }
+                return curValue;
+            }
+        }
+
+        private int[] getWinningPosition() {
+            int ret[] = new int[2];
+            int curValue = -1;
+            int tempValue;
+
+            ret[0] = ret[1] = -1;
+            for (int i=0; i<MAX_ROW; i++) {
+                for (int j=0; j<MAX_COL; j++) {
+                    if (col[i][j] == GameUtils.BLANK) {
+                        if (j+1<MAX_COL && col[i][j+1]==GameUtils.BLANK) {
+
+                            col[i][j] = col[i][j+1] = GameUtils.RIVAL;
+                            tempValue = calculateHuristics(false, curValue);
+                            col[i][j] = col[i][j+1] = GameUtils.BLANK;
+
+                            if (curValue < tempValue) {
+                                ret[0] = i*MAX_ROW + j;
+                                ret[1] = i*MAX_ROW + j+1;
+                                curValue = tempValue;
+                            }
+                        }
+                        else if (i+1<MAX_ROW && col[i+1][j]==GameUtils.BLANK) {
+
+                            col[i][j] = col[i+1][j] = GameUtils.RIVAL;
+                            tempValue = calculateHuristics(false, curValue);
+                            col[i][j] = col[i+1][j] = GameUtils.BLANK;
+
+                            if (curValue < tempValue) {
+                                ret[0] = i*MAX_ROW + j;
+                                ret[1] = (i+1)*MAX_ROW + j;
+                                curValue = tempValue;
+                            }
+                        }
+                    }
+                }
+            }
+            return ret;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            Log.d(GameUtils.AI_THINKING_TAG, "Wait buddy, let me think.");
+        }
+
+        @Override
+        protected Integer[] doInBackground(Void... params) {
+            gridStateToColorArray();
+            int tmp[] = getWinningPosition();
+            return new Integer[]{tmp[0], tmp[1]};
+        }
+
+        @Override
+        protected void onPostExecute(final Integer[] integers) {
+            Log.d(GameUtils.AI_THINKING_TAG, "I've finished my thinking.");
+
+            if (integers[0] == -1 || integers[1] == -1) {
+                Toast.makeText(GameActivity.this, "You Win!", Toast.LENGTH_LONG);
+            } else {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (integers[1] - integers[0] == 1) { // Horizontally adjacent tiles
+                            gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_left);
+                            gameAdapter.setItem(integers[1], R.drawable.rival_cell_brick_right);
+                        } else { // Vertically adjacent tiles
+                            gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_top);
+                            gameAdapter.setItem(integers[1], R.drawable.rival_cell_brick_bottom);
+                        }
+                        gridState[integers[0]] = gridState[integers[1]] = GameUtils.RIVAL;
+                        gameAdapter.notifyDataSetChanged();
+                        if (soundEnabled) mpBrickRival.start();
+                        playerTurn = true;
+                        showWhoseTurn();
+                    }
+                });
+            }
+        }
+    }
+
+    /**
+     * Created by Sazedul on 28-Dec-14.
+     */
+    private class NonClassicAI extends AsyncTask<Void, Void, Integer> {
+
+        @Override
+        protected Integer doInBackground(Void... params) {
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            super.onPostExecute(integer);
         }
     }
 }

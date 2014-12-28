@@ -3,6 +3,7 @@ package com.shakeme.sazedul.games.bricksongrid;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 public class SplashActivity extends Activity {
@@ -14,14 +15,12 @@ public class SplashActivity extends Activity {
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        Thread timer;
-
-        timer = new Thread(){
+        new AsyncTask<Void, Void, Void>(){
 
             @Override
-            public void run() {
+            protected Void doInBackground(Void... params) {
                 try {
-                    sleep(5000);
+                    Thread.sleep(3000);
                     Intent intent = new Intent(SplashActivity.this, MainMenuActivity.class);
                     startActivity(intent);
                 } catch (InterruptedException e) {
@@ -29,9 +28,9 @@ public class SplashActivity extends Activity {
                 } finally {
                     finish();
                 }
+                return null;
             }
-        };
-        timer.start();
+        }.execute();
 
     }
 

@@ -31,6 +31,7 @@ public class GameView extends GridView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(getMeasuredWidth(), getMeasuredWidth()); // Snap to width
+        setMeasuredDimension(Math.min(getMeasuredWidth(), getMeasuredHeight()), Math.min(getMeasuredWidth(), getMeasuredHeight())); // Snap to smallest size
+//        setMeasuredDimension(getMeasuredWidth(), getMeasuredWidth()); // Snap to Width
     }
 }

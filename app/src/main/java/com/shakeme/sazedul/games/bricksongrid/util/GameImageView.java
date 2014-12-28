@@ -29,7 +29,8 @@ public class GameImageView extends ImageView {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(getMeasuredWidth(), getMeasuredWidth()); // Snap to width
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        int height = width * getDrawable().getIntrinsicHeight() / getDrawable().getIntrinsicWidth();
+        setMeasuredDimension(width, height);
     }
 }

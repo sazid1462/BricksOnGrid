@@ -22,6 +22,7 @@ public class SettingsActivity extends Activity implements
 
     private EditText txtName;
     private EditText txtBlocked;
+    private EditText txtDim;
     private Switch musicEnabled;
     private Switch soundEnabled;
     private Switch aiEnabled;
@@ -48,25 +49,33 @@ public class SettingsActivity extends Activity implements
         prefSettings = getSharedPreferences(GameUtils.SHARED_PREF_SETTINGS, MODE_PRIVATE);
         txtName = (EditText) findViewById(R.id.txt_name);
         txtBlocked = (EditText) findViewById(R.id.txt_blocked_tile);
+        txtDim = (EditText) findViewById(R.id.txt_dim);
         musicEnabled = (Switch) findViewById(R.id.music_enabled);
         soundEnabled = (Switch) findViewById(R.id.sound_enabled);
         aiEnabled = (Switch) findViewById(R.id.ai_enabled);
         classicEnabled = (Switch) findViewById(R.id.classic_enabled);
 
         // Get the settings from SharedPreferences
-        String name = prefSettings.getString(GameUtils.APP_TAG + GameUtils.NAME_TAG, GameUtils.DEFAULT_NAME);
-        int blockedCell = prefSettings.getInt(GameUtils.APP_TAG + GameUtils.BLOCKED_TILE_TAG, GameUtils.DEFAULT_BLOCKED);
+        final String name = prefSettings.getString(GameUtils.APP_TAG + GameUtils.NAME_TAG, GameUtils.DEFAULT_NAME);
+        final int blockedCell = prefSettings.getInt(GameUtils.APP_TAG + GameUtils.BLOCKED_TILE_TAG, GameUtils.DEFAULT_BLOCKED);
+        final int dim = prefSettings.getInt(GameUtils.APP_TAG + GameUtils.DIMENSION_TAG, GameUtils.DEFAULT_DIMENSION);
         music = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.MUSIC_TAG, GameUtils.DEFAULT_MUSIC);
         sound = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.SOUND_TAG, GameUtils.DEFAULT_SOUND);
-        boolean ai = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.AI_TAG, GameUtils.DEFAULT_AI);
-        boolean classic = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.CLASSIC_TAG, GameUtils.DEFAULT_CLASSIC);
+        final boolean ai = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.AI_TAG, GameUtils.DEFAULT_AI);
+        final boolean classic = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.CLASSIC_TAG, GameUtils.DEFAULT_CLASSIC);
 
-        txtName.setText(name);
-        txtBlocked.setText(Integer.toString(blockedCell));
-        musicEnabled.setChecked(music);
-        soundEnabled.setChecked(sound);
-        aiEnabled.setChecked(ai);
-        classicEnabled.setChecked(classic);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                txtName.setText(name);
+                txtBlocked.setText(Integer.toString(blockedCell));
+                txtDim.setText(Integer.toString(dim));
+                musicEnabled.setChecked(music);
+                soundEnabled.setChecked(sound);
+                aiEnabled.setChecked(ai);
+                classicEnabled.setChecked(classic);
+            }
+        });
 
         musicEnabled.setOnCheckedChangeListener(this);
         soundEnabled.setOnCheckedChangeListener(this);
@@ -112,15 +121,20 @@ public class SettingsActivity extends Activity implements
         // Get the settings from UI
         String name = txtName.getText().toString();
         int blockedCell = Integer.parseInt(txtBlocked.getText().toString());
+        int dim = Integer.parseInt(txtDim.getText().toString());
         boolean music = musicEnabled.isChecked();
         boolean sound = soundEnabled.isChecked();
         boolean ai = aiEnabled.isChecked();
         boolean classic = classicEnabled.isChecked();
 
+        if (dim > 8) dim = 8;
+        if (blockedCell > dim) blockedCell = dim;
+
         SharedPreferences.Editor editor = prefSettings.edit();
 
         editor.putString(GameUtils.APP_TAG+GameUtils.NAME_TAG, name);
         editor.putInt(GameUtils.APP_TAG + GameUtils.BLOCKED_TILE_TAG, blockedCell);
+        editor.putInt(GameUtils.APP_TAG + GameUtils.DIMENSION_TAG, dim);
         editor.putBoolean(GameUtils.APP_TAG + GameUtils.MUSIC_TAG, music);
         editor.putBoolean(GameUtils.APP_TAG + GameUtils.SOUND_TAG, sound);
         editor.putBoolean(GameUtils.APP_TAG + GameUtils.AI_TAG, ai);

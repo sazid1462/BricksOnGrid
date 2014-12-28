@@ -31,10 +31,6 @@ public class MainMenuActivity extends Activity implements AudioManager.OnAudioFo
         mpButton = MediaPlayer.create(this, R.raw.button);
         mpMainMenu.setLooping(true);
         prefSettings = getSharedPreferences(GameUtils.SHARED_PREF_SETTINGS, MODE_PRIVATE);
-        music = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.MUSIC_TAG, GameUtils.DEFAULT_MUSIC);
-        sound = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.SOUND_TAG, GameUtils.DEFAULT_SOUND);
-
-        startPlayback();
     }
 
     @Override
@@ -47,8 +43,8 @@ public class MainMenuActivity extends Activity implements AudioManager.OnAudioFo
     @Override
     protected void onResume() {
         super.onResume();
-
-        resumePlayback();
+        getSoundSettings();
+        startPlayback();
     }
 
     @Override
@@ -63,6 +59,11 @@ public class MainMenuActivity extends Activity implements AudioManager.OnAudioFo
         super.onDestroy();
         mpButton.release();
         mpMainMenu.release();
+    }
+
+    private void getSoundSettings() {
+        music = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.MUSIC_TAG, GameUtils.DEFAULT_MUSIC);
+        sound = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.SOUND_TAG, GameUtils.DEFAULT_SOUND);
     }
 
     public void showGameActivity (View view) {
