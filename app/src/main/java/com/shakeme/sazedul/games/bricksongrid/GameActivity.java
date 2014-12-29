@@ -87,6 +87,7 @@ public class GameActivity extends Activity implements
 
         animBlink.setAnimationListener(this);
         animFadeout.setAnimationListener(this);
+        animFadein.setAnimationListener(this);
 
         prefSettings = getSharedPreferences(GameUtils.SHARED_PREF_SETTINGS, MODE_PRIVATE);
         // Get the settings from SharedPreferences
@@ -179,6 +180,9 @@ public class GameActivity extends Activity implements
                 layoutWinner.startAnimation(animFadein);
             }
         }
+        else if (animation == animFadein) {
+            if (!playerTurn) notifyAI();
+        }
     }
 
     @Override
@@ -213,8 +217,6 @@ public class GameActivity extends Activity implements
         if (blockedCell != 0) {
             blockTheCells();
         }
-
-        if (!playerTurn) notifyAI();
     }
 
     private void showWhoseTurn() {
