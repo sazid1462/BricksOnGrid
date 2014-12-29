@@ -69,6 +69,7 @@ public class GameActivity extends Activity implements
     Animation animFadein;
     Animation animFadeout;
     Animation animBlink;
+    private boolean gameInitialized;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +88,7 @@ public class GameActivity extends Activity implements
 
         animBlink.setAnimationListener(this);
         animFadeout.setAnimationListener(this);
+        animFadein.setAnimationListener(this);
 
         prefSettings = getSharedPreferences(GameUtils.SHARED_PREF_SETTINGS, MODE_PRIVATE);
         // Get the settings from SharedPreferences
@@ -165,19 +167,22 @@ public class GameActivity extends Activity implements
 
         // check for fade out animation
         if (animation == animFadeout) {
-            layoutWinner.setVisibility(View.GONE);
-            layoutLoser.setVisibility(View.GONE);
             initializeGame();
         }
         else if (animation == animBlink) {
             gameView.setVisibility(View.GONE);
             if (playerTurn) {
-                layoutLoser.setVisibility(View.VISIBLE);
                 layoutLoser.startAnimation(animFadein);
+                layoutLoser.setVisibility(View.VISIBLE);
+                layoutLoser.setClickable(true);
             } else {
-                layoutWinner.setVisibility(View.VISIBLE);
                 layoutWinner.startAnimation(animFadein);
+                layoutWinner.setVisibility(View.VISIBLE);
+                layoutWinner.setClickable(true);
             }
+        }
+        else if (animation == animFadein) {
+            if (gameInitialized) notifyAI();
         }
     }
 
@@ -186,8 +191,17 @@ public class GameActivity extends Activity implements
     }
 
     private void initializeGame () {
-        gameView.setVisibility(View.VISIBLE);
+        if (layoutWinner.getVisibility() == View.VISIBLE) {
+            layoutWinner.setVisibility(View.GONE);
+            layoutWinner.setClickable(false);
+        }
+        if (layoutLoser.getVisibility() == View.VISIBLE) {
+            layoutLoser.setVisibility(View.GONE);
+            layoutLoser.setClickable(false);
+        }
+
         gameView.startAnimation(animFadein);
+        gameView.setVisibility(View.VISIBLE);
 
         gridState = new int[MAX_CELL];
         gameAdapter = new GameAdapter(this);
@@ -208,12 +222,12 @@ public class GameActivity extends Activity implements
                     layoutRivalScore.setVisibility(View.INVISIBLE);
                 }
                 showWhoseTurn();
+                gameInitialized = true;
             }
         });
         if (blockedCell != 0) {
             blockTheCells();
         }
-        if (!playerTurn) notifyAI();
     }
 
     private void showWhoseTurn() {
@@ -232,6 +246,7 @@ public class GameActivity extends Activity implements
         } else {
             new NonClassicAI().execute();
         }
+        gameInitialized = false;
     }
 
     private void blockTheCells () {
