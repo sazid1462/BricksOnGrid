@@ -128,7 +128,7 @@ public class SettingsActivity extends Activity implements
         boolean classic = classicEnabled.isChecked();
 
         if (dim > 8) dim = 8;
-        if (blockedCell > dim) blockedCell = dim;
+        if (blockedCell > dim*dim) blockedCell = dim*dim;
 
         SharedPreferences.Editor editor = prefSettings.edit();
 

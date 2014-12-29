@@ -23,7 +23,7 @@
     <string name="rival_score">Rival\'s score:</string>
     <string name="initial_score">0</string>
     <string name="blocked_tile">Max blocked tile:</string>
-    <string name="blocked_tile_hint">0 to Dimension</string>
+    <string name="blocked_tile_hint">Less than cells</string>
     <string name="ambient_music">Ambient music:</string>
     <string name="sound_effect">Sound effect:</string>
     <string name="ai_rival">AI Rival:</string>
