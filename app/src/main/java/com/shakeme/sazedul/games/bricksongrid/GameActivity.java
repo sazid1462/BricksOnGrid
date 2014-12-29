@@ -468,13 +468,13 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
                         }
                     }
                 }
-                return curValue;
             }
+            return curValue;
         }
 
         private int[] getWinningPosition() {
             int ret[] = new int[2];
-            int curValue = -1;
+            int curValue = -100000;
             int tempValue;
 
             ret[0] = ret[1] = -1;
@@ -491,9 +491,10 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
                                 ret[0] = i*MAX_ROW + j;
                                 ret[1] = i*MAX_ROW + j+1;
                                 curValue = tempValue;
+                                if (curValue==1) return ret;
                             }
                         }
-                        else if (i+1<MAX_ROW && col[i+1][j]==GameUtils.BLANK) {
+                        if (i+1<MAX_ROW && col[i+1][j]==GameUtils.BLANK) {
 
                             col[i][j] = col[i+1][j] = GameUtils.RIVAL;
                             tempValue = calculateHuristics(false, curValue);
@@ -503,6 +504,7 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
                                 ret[0] = i*MAX_ROW + j;
                                 ret[1] = (i+1)*MAX_ROW + j;
                                 curValue = tempValue;
+                                if (curValue==1) return ret;
                             }
                         }
                     }
@@ -525,30 +527,25 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         }
 
         @Override
-        protected void onPostExecute(final Integer[] integers) {
+        protected void onPostExecute(Integer[] integers) {
             Log.d(GameUtils.AI_THINKING_TAG, "I've finished my thinking.");
             progressAI.setVisibility(View.GONE);
 
             if (integers[0] == -1 || integers[1] == -1) {
                 Toast.makeText(GameActivity.this, "You Win!", Toast.LENGTH_LONG).show();
             } else {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (integers[1] - integers[0] == 1) { // Horizontally adjacent tiles
-                            gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_left);
-                            gameAdapter.setItem(integers[1], R.drawable.rival_cell_brick_right);
-                        } else { // Vertically adjacent tiles
-                            gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_top);
-                            gameAdapter.setItem(integers[1], R.drawable.rival_cell_brick_bottom);
-                        }
-                        gridState[integers[0]] = gridState[integers[1]] = GameUtils.RIVAL;
-                        gameAdapter.notifyDataSetChanged();
-                        if (soundEnabled) mpBrickRival.start();
-                        playerTurn = true;
-                        showWhoseTurn();
-                    }
-                });
+                if (integers[1] - integers[0] == 1) { // Horizontally adjacent tiles
+                    gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_left);
+                    gameAdapter.setItem(integers[1], R.drawable.rival_cell_brick_right);
+                } else { // Vertically adjacent tiles
+                    gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_top);
+                    gameAdapter.setItem(integers[1], R.drawable.rival_cell_brick_bottom);
+                }
+                gridState[integers[0]] = gridState[integers[1]] = GameUtils.RIVAL;
+                gameAdapter.notifyDataSetChanged();
+                if (soundEnabled) mpBrickRival.start();
+                playerTurn = true;
+                showWhoseTurn();
             }
         }
     }
