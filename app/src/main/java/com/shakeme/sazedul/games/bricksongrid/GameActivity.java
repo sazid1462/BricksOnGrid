@@ -167,6 +167,7 @@ public class GameActivity extends Activity implements
         if (animation == animFadeout) {
             layoutWinner.setVisibility(View.GONE);
             layoutLoser.setVisibility(View.GONE);
+            initializeGame();
         }
         else if (animation == animBlink) {
             gameView.setVisibility(View.GONE);
@@ -316,7 +317,6 @@ public class GameActivity extends Activity implements
     @Override
     public void onClick(View v) {
         v.startAnimation(animFadeout);
-        initializeGame();
     }
 
     /**
