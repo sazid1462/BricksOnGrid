@@ -8,6 +8,7 @@
     tools:context="com.shakeme.sazedul.games.bricksongrid.MainMenuActivity">
 
     <TextView
+        android:id="@+id/title"
         android:padding="@dimen/abc_action_bar_stacked_max_height"
         android:paddingTop="@dimen/padding_all"
         android:paddingBottom="@dimen/title_bottom"

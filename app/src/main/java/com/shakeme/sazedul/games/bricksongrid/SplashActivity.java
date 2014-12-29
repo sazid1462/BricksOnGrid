@@ -3,10 +3,19 @@ package com.shakeme.sazedul.games.bricksongrid;
 import android.app.Activity;
 import android.content.Intent;
 import android.media.AudioManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.TextView;
+
+import com.shakeme.sazedul.games.bricksongrid.util.GameUtils;
 
 public class SplashActivity extends Activity {
+
+    // Animation
+    Animation animFadein;
+    TextView txtWaterMark;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -15,22 +24,28 @@ public class SplashActivity extends Activity {
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        new AsyncTask<Void, Void, Void>(){
+        // load the animation
+        animFadein = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in);
+        txtWaterMark = (TextView) findViewById(R.id.water_mark);
+        txtWaterMark.startAnimation(animFadein);
+
+        new Handler().postDelayed(new Runnable() {
+
+            /*
+             * Showing splash screen with a timer.
+             */
 
             @Override
-            protected Void doInBackground(Void... params) {
-                try {
-                    Thread.sleep(3000);
-                    Intent intent = new Intent(SplashActivity.this, MainMenuActivity.class);
-                    startActivity(intent);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } finally {
-                    finish();
-                }
-                return null;
+            public void run() {
+                // This method will be executed once the timer is over
+                // Start your app main activity
+                Intent intent = new Intent(SplashActivity.this, MainMenuActivity.class);
+                startActivity(intent);
+
+                // close this activity
+                finish();
             }
-        }.execute();
+        }, GameUtils.SPLASH_TIME_OUT);
 
     }
 

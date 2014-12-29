@@ -1,10 +1,70 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0099cc"
     android:keepScreenOn="true"
     android:orientation="vertical"
-    tools:context="com.shakeme.sazedul.games.bricksongrid.CreditsActivity">
+    tools:context="com.shakeme.sazedul.games.bricksongrid.InstructionActivity">
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/linear_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#0099cc"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/abc_action_bar_stacked_max_height"
+            android:paddingStart="@dimen/abc_action_bar_stacked_max_height"
+            android:paddingEnd="@dimen/abc_action_bar_stacked_max_height"
+            android:paddingTop="@dimen/abc_action_bar_stacked_max_height"
+            android:background="#0099cc"
+            style="@style/ButtonBar"
+            android:orientation="horizontal">
+            <Button
+                android:drawablePadding="@dimen/padding_all"
+                android:drawableLeft="@drawable/ic_action_back"
+                android:drawableStart="@drawable/ic_action_back"
+                android:background="#0099cc"
+                android:text="@string/app_title"
+                android:textSize="@dimen/main_menu_title"
+                android:textStyle="bold"
+                android:textColor="@color/title"
+                android:onClick="exitActivity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+        <TextView
+            android:gravity="center"
+            android:textStyle="bold"
+            android:text="@string/btn_credits"
+            android:textColor="@color/white"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textView" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/scrollView"
+        android:foregroundGravity="center"
+        android:layout_below="@id/linear_layout"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+
+        <TextView
+            android:padding="@dimen/padding_all"
+            android:text="@string/lbl_credits"
+            android:textSize="@dimen/abc_text_size_body_1_material"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+    </ScrollView>
+</RelativeLayout>

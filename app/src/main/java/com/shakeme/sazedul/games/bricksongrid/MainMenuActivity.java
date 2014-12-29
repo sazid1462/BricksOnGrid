@@ -8,6 +8,10 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.shakeme.sazedul.games.bricksongrid.util.GameUtils;
 
@@ -21,10 +25,38 @@ public class MainMenuActivity extends Activity implements AudioManager.OnAudioFo
     private boolean music;
     private boolean sound;
 
+    private TextView txtTitle;
+    private Button btnNewGame;
+    private Button btnSettings;
+    private Button btnInstruction;
+    private Button btnCredits;
+    private Button btnExit;
+
+    Animation animFadein;
+    Animation animBounce;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
+
+        // load the animation
+        animFadein = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in);
+        animBounce = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.bounce);
+
+        txtTitle = (TextView) findViewById(R.id.title);
+        btnNewGame = (Button) findViewById(R.id.btn_new_game);
+        btnSettings = (Button) findViewById(R.id.btn_settings);
+        btnInstruction = (Button) findViewById(R.id.btn_instructions);
+        btnCredits = (Button) findViewById(R.id.btn_about);
+        btnExit = (Button) findViewById(R.id.btn_exit);
+
+        txtTitle.startAnimation(animBounce);
+        btnNewGame.startAnimation(animFadein);
+        btnSettings.startAnimation(animFadein);
+        btnInstruction.startAnimation(animFadein);
+        btnCredits.startAnimation(animFadein);
+        btnExit.startAnimation(animFadein);
 
         audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         mpMainMenu = MediaPlayer.create(this, R.raw.welcome);

@@ -8,6 +8,9 @@ public class GameUtils {
     public static int MAX_ROW = 3;
     public static int MAX_COL = 3;
 
+    // Splash screen timer
+    public static int SPLASH_TIME_OUT = 4000;
+
     public static final String DEBUG_TAG = "Gestures";
     public static final String AI_THINKING_TAG = "AITEST";
     public static final String APP_TAG = "com.shakeme.sazedul.games.bricksongrid";

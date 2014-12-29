@@ -44,8 +44,6 @@ public class SettingsActivity extends Activity implements
         mpButton = MediaPlayer.create(this, R.raw.button);
         mpMainMenu.setLooping(true);
 
-        startPlayback();
-
         prefSettings = getSharedPreferences(GameUtils.SHARED_PREF_SETTINGS, MODE_PRIVATE);
         txtName = (EditText) findViewById(R.id.txt_name);
         txtBlocked = (EditText) findViewById(R.id.txt_blocked_tile);
@@ -54,6 +52,8 @@ public class SettingsActivity extends Activity implements
         soundEnabled = (Switch) findViewById(R.id.sound_enabled);
         aiEnabled = (Switch) findViewById(R.id.ai_enabled);
         classicEnabled = (Switch) findViewById(R.id.classic_enabled);
+
+        startPlayback();
 
         // Get the settings from SharedPreferences
         final String name = prefSettings.getString(GameUtils.APP_TAG + GameUtils.NAME_TAG, GameUtils.DEFAULT_NAME);

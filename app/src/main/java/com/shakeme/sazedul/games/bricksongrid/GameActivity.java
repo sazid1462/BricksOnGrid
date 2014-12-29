@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.LinearLayout;
@@ -23,7 +25,10 @@ import com.shakeme.sazedul.games.bricksongrid.util.GameAdapter;
 import com.shakeme.sazedul.games.bricksongrid.util.GameUtils;
 
 
-public class GameActivity extends Activity implements AudioManager.OnAudioFocusChangeListener{
+public class GameActivity extends Activity implements
+        AudioManager.OnAudioFocusChangeListener,
+        View.OnClickListener,
+        Animation.AnimationListener{
 
     private int MAX_CELL;
     private int MAX_ROW;
@@ -46,6 +51,8 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
 
     private LinearLayout layoutYourScore;
     private LinearLayout layoutRivalScore;
+    private LinearLayout layoutWinner;
+    private LinearLayout layoutLoser;
     private TextView txtYourScore;
     private TextView txtRivalScore;
     private TextView txtRivalTurn;
@@ -59,6 +66,10 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
     private MediaPlayer mpBrickRival;
     private AudioManager audioManager;
 
+    Animation animFadein;
+    Animation animFadeout;
+    Animation animBlink;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +81,12 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         mpBrickRival = MediaPlayer.create(this, R.raw.brick);
         mpMainMenu.setLooping(true);
 
-        startPlayback();
+        animFadein = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in);
+        animFadeout = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out);
+        animBlink = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.blink);
+
+        animBlink.setAnimationListener(this);
+        animFadeout.setAnimationListener(this);
 
         prefSettings = getSharedPreferences(GameUtils.SHARED_PREF_SETTINGS, MODE_PRIVATE);
         // Get the settings from SharedPreferences
@@ -82,18 +98,19 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         aiEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.AI_TAG, GameUtils.DEFAULT_AI);
         classicEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.CLASSIC_TAG, GameUtils.DEFAULT_CLASSIC);
 
+        startPlayback();
+
         GameUtils.MAX_CELL = dim*dim;
         GameUtils.MAX_ROW = dim;
         GameUtils.MAX_COL = dim;
         MAX_CELL = GameUtils.MAX_CELL;
         MAX_ROW = GameUtils.MAX_ROW;
         MAX_COL = GameUtils.MAX_COL;
-        gridState = new int[MAX_CELL];
 
         // Instantiate variables
         gameView = (GridView) findViewById(R.id.gridView);
-        gameAdapter = new GameAdapter(this);
-        gameView.setAdapter(gameAdapter);
+        layoutWinner = (LinearLayout) findViewById(R.id.winner);
+        layoutLoser = (LinearLayout) findViewById(R.id.loser);
         layoutYourScore = (LinearLayout) findViewById(R.id.your_score);
         layoutRivalScore = (LinearLayout) findViewById(R.id.rival_score);
         txtYourScore = (TextView) findViewById(R.id.txt_your_score);
@@ -101,17 +118,12 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         txtYourTurn = (TextView) findViewById(R.id.your_turn);
         txtRivalTurn = (TextView) findViewById(R.id.rival_turn);
         progressAI = (ProgressBar) findViewById(R.id.progress_ai);
-        playerTurn = ((Math.round(Math.random()*997))%2 == 1);
 
         initializeGame();
 
+        layoutWinner.setOnClickListener(this);
+        layoutLoser.setOnClickListener(this);
         mDetector = new GestureDetectorCompat(this, new GameGestureListener());
-        gameView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return mDetector.onTouchEvent(event);
-            }
-        });
     }
 
     @Override
@@ -143,7 +155,49 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         mpMainMenu.release();
     }
 
+    @Override
+    public void onAnimationStart(Animation animation) {
+    }
+
+    @Override
+    public void onAnimationEnd(Animation animation) {
+        // Take any action after completing the animation
+
+        // check for fade out animation
+        if (animation == animFadeout) {
+            layoutWinner.setVisibility(View.GONE);
+            layoutLoser.setVisibility(View.GONE);
+        }
+        else if (animation == animBlink) {
+            gameView.setVisibility(View.GONE);
+            if (playerTurn) {
+                layoutLoser.setVisibility(View.VISIBLE);
+                layoutLoser.startAnimation(animFadein);
+            } else {
+                layoutWinner.setVisibility(View.VISIBLE);
+                layoutWinner.startAnimation(animFadein);
+            }
+        }
+    }
+
+    @Override
+    public void onAnimationRepeat(Animation animation) {
+    }
+
     private void initializeGame () {
+        gameView.setVisibility(View.VISIBLE);
+        gameView.startAnimation(animFadein);
+
+        gridState = new int[MAX_CELL];
+        gameAdapter = new GameAdapter(this);
+        gameView.setAdapter(gameAdapter);
+        gameView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return mDetector.onTouchEvent(event);
+            }
+        });
+        playerTurn = ((Math.round(Math.random()*997))%2 == 1);
         gameView.setNumColumns(MAX_COL);
         runOnUiThread(new Runnable() {
             @Override
@@ -257,6 +311,12 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
         if (musicEnabled) {
             mpMainMenu.setVolume(0.5f, 0.5f);
         }
+    }
+
+    @Override
+    public void onClick(View v) {
+        v.startAnimation(animFadeout);
+        initializeGame();
     }
 
     /**
@@ -561,6 +621,7 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
             if (!isItMyTurn) {
                 if (integers[0] == -1 || integers[1] == -1) {
                     Toast.makeText(GameActivity.this, "You Win!", Toast.LENGTH_LONG).show();
+                    gameView.startAnimation(animBlink);
                 } else {
                     if (integers[1] - integers[0] == 1) { // Horizontally adjacent tiles
                         gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_left);
@@ -579,6 +640,7 @@ public class GameActivity extends Activity implements AudioManager.OnAudioFocusC
             } else {
                 if (integers[0] == -1 || integers[1] == -1) {
                     Toast.makeText(GameActivity.this, "I Win!", Toast.LENGTH_LONG).show();
+                    gameView.startAnimation(animBlink);
                 }
             }
         }
