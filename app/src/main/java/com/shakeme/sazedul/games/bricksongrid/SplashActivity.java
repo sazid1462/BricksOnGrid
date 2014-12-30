@@ -35,7 +35,9 @@ public class SplashActivity extends Activity {
         txtWaterMark = (TextView) findViewById(R.id.water_mark);
         txtWelcome = (TextView) findViewById(R.id.welcome);
 
-        txtWelcome.setText(prefSettings.getString(GameUtils.APP_TAG+GameUtils.NAME_TAG, GameUtils.DEFAULT_NAME));
+        if (prefSettings.contains(GameUtils.APP_TAG+GameUtils.NAME_TAG)) {
+            txtWelcome.setText("Welcome back "+prefSettings.getString(GameUtils.APP_TAG+GameUtils.NAME_TAG, GameUtils.DEFAULT_NAME));
+        }
 
         txtWaterMark.startAnimation(animFadein);
         txtWelcome.startAnimation(animBlink);
