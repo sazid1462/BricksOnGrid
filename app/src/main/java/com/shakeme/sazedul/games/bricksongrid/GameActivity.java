@@ -707,7 +707,7 @@ public class GameActivity extends Activity implements
                     }
                 }
             } else {
-                if (!isItRed) {
+                if (isItRed) {
                     if (integers[0] == -1 || integers[1] == -1) {
                         Toast.makeText(GameActivity.this, "Blue Wins!", Toast.LENGTH_LONG).show();
                         gameView.startAnimation(animBlink);

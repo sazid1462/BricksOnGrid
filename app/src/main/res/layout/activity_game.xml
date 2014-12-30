@@ -141,6 +141,7 @@
             android:text="@string/your_turn"
             android:gravity="center_horizontal"
             android:textColor="@color/red"
+            android:visibility="gone"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
         <TextView
@@ -148,6 +149,7 @@
             android:text="@string/rival_turn"
             android:gravity="center_horizontal"
             android:textColor="@color/blue"
+            android:visibility="gone"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
         <TextView
@@ -155,6 +157,7 @@
             android:text="@string/red_turn"
             android:gravity="center_horizontal"
             android:textColor="@color/red"
+            android:visibility="gone"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
         <TextView
@@ -162,6 +165,7 @@
             android:text="@string/blue_turn"
             android:gravity="center_horizontal"
             android:textColor="@color/blue"
+            android:visibility="gone"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
