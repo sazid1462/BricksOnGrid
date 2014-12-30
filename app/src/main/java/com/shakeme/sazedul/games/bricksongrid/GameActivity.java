@@ -53,10 +53,13 @@ public class GameActivity extends Activity implements
     private LinearLayout layoutRivalScore;
     private LinearLayout layoutWinner;
     private LinearLayout layoutLoser;
+    private LinearLayout layoutEnd;
     private TextView txtYourScore;
     private TextView txtRivalScore;
     private TextView txtRivalTurn;
     private TextView txtYourTurn;
+    private TextView txtRedTurn;
+    private TextView txtBluTurn;
     private ProgressBar progressAI;
 
     private boolean playerTurn;
@@ -113,18 +116,22 @@ public class GameActivity extends Activity implements
         gameView = (GridView) findViewById(R.id.gridView);
         layoutWinner = (LinearLayout) findViewById(R.id.winner);
         layoutLoser = (LinearLayout) findViewById(R.id.loser);
+        layoutEnd = (LinearLayout) findViewById(R.id.game_end);
         layoutYourScore = (LinearLayout) findViewById(R.id.your_score);
         layoutRivalScore = (LinearLayout) findViewById(R.id.rival_score);
         txtYourScore = (TextView) findViewById(R.id.txt_your_score);
         txtRivalScore = (TextView) findViewById(R.id.txt_rival_score);
         txtYourTurn = (TextView) findViewById(R.id.your_turn);
         txtRivalTurn = (TextView) findViewById(R.id.rival_turn);
+        txtRedTurn = (TextView) findViewById(R.id.red_turn);
+        txtBluTurn = (TextView) findViewById(R.id.blue_turn);
         progressAI = (ProgressBar) findViewById(R.id.progress_ai);
 
         initializeGame();
 
         layoutWinner.setOnClickListener(this);
         layoutLoser.setOnClickListener(this);
+        layoutEnd.setOnClickListener(this);
         mDetector = new GestureDetectorCompat(this, new GameGestureListener());
     }
 
@@ -171,14 +178,20 @@ public class GameActivity extends Activity implements
         }
         else if (animation == animBlink) {
             gameView.setVisibility(View.GONE);
-            if (playerTurn) {
-                layoutLoser.startAnimation(animFadein);
-                layoutLoser.setVisibility(View.VISIBLE);
-                layoutLoser.setClickable(true);
+            if (aiEnabled) {
+                if (playerTurn) {
+                    layoutLoser.startAnimation(animFadein);
+                    layoutLoser.setVisibility(View.VISIBLE);
+                    layoutLoser.setClickable(true);
+                } else {
+                    layoutWinner.startAnimation(animFadein);
+                    layoutWinner.setVisibility(View.VISIBLE);
+                    layoutWinner.setClickable(true);
+                }
             } else {
-                layoutWinner.startAnimation(animFadein);
-                layoutWinner.setVisibility(View.VISIBLE);
-                layoutWinner.setClickable(true);
+                layoutEnd.startAnimation(animFadein);
+                layoutEnd.setVisibility(View.VISIBLE);
+                layoutEnd.setClickable(true);
             }
         }
         else if (animation == animFadein) {
@@ -198,6 +211,10 @@ public class GameActivity extends Activity implements
         if (layoutLoser.getVisibility() == View.VISIBLE) {
             layoutLoser.setVisibility(View.GONE);
             layoutLoser.setClickable(false);
+        }
+        if (layoutEnd.getVisibility() == View.VISIBLE) {
+            layoutEnd.setVisibility(View.GONE);
+            layoutEnd.setClickable(false);
         }
 
         gameView.startAnimation(animFadein);
@@ -231,12 +248,22 @@ public class GameActivity extends Activity implements
     }
 
     private void showWhoseTurn() {
-        if (playerTurn) {
-            txtYourTurn.setVisibility(View.VISIBLE);
-            txtRivalTurn.setVisibility(View.GONE);
+        if (aiEnabled) {
+            if (playerTurn) {
+                txtYourTurn.setVisibility(View.VISIBLE);
+                txtRivalTurn.setVisibility(View.GONE);
+            } else {
+                txtYourTurn.setVisibility(View.GONE);
+                txtRivalTurn.setVisibility(View.VISIBLE);
+            }
         } else {
-            txtYourTurn.setVisibility(View.GONE);
-            txtRivalTurn.setVisibility(View.VISIBLE);
+            if (playerTurn) {
+                txtRedTurn.setVisibility(View.VISIBLE);
+                txtBluTurn.setVisibility(View.GONE);
+            } else {
+                txtRedTurn.setVisibility(View.GONE);
+                txtBluTurn.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -355,7 +382,7 @@ public class GameActivity extends Activity implements
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 //            Log.d(DEBUG_TAG, "onScroll: " + e1.toString()+e2.toString());
-            if (playerTurn) {
+            if (playerTurn || !aiEnabled) {
                 if (
                         e1.getX() - e2.getX() > gameView.getColumnWidth()
                                 &&
@@ -402,12 +429,17 @@ public class GameActivity extends Activity implements
             Log.d(GameUtils.DEBUG_TAG, "onScroll: Left " + pos1+" "+pos2);
             if (pos1 != AdapterView.INVALID_POSITION && pos2 != AdapterView.INVALID_POSITION) {
                 if (gridState[pos1]==GameUtils.BLANK && gridState[pos2]==GameUtils.BLANK) {
-                    gameAdapter.setItem(pos1, R.drawable.cell_brick_right);
-                    gameAdapter.setItem(pos2, R.drawable.cell_brick_left);
+                    if (playerTurn) {
+                        gameAdapter.setItem(pos1, R.drawable.cell_brick_right);
+                        gameAdapter.setItem(pos2, R.drawable.cell_brick_left);
+                    } else {
+                        gameAdapter.setItem(pos1, R.drawable.rival_cell_brick_right);
+                        gameAdapter.setItem(pos2, R.drawable.rival_cell_brick_left);
+                    }
                     gridState[pos1] = gridState[pos2] = GameUtils.PLAYER;
                     gameAdapter.notifyDataSetChanged();
                     if (soundEnabled) mpBrickPlayer.start();
-                    playerTurn = false;
+                    playerTurn = !playerTurn;
                     showWhoseTurn();
                     notifyAI();
                 }
@@ -418,12 +450,17 @@ public class GameActivity extends Activity implements
             Log.d(GameUtils.DEBUG_TAG, "onScroll: Right " + pos1+" "+pos2);
             if (pos1 != AdapterView.INVALID_POSITION && pos2 != AdapterView.INVALID_POSITION) {
                 if (gridState[pos1]==GameUtils.BLANK && gridState[pos2]==GameUtils.BLANK) {
-                    gameAdapter.setItem(pos1, R.drawable.cell_brick_left);
-                    gameAdapter.setItem(pos2, R.drawable.cell_brick_right);
+                    if (playerTurn) {
+                        gameAdapter.setItem(pos1, R.drawable.cell_brick_left);
+                        gameAdapter.setItem(pos2, R.drawable.cell_brick_right);
+                    } else {
+                        gameAdapter.setItem(pos1, R.drawable.rival_cell_brick_left);
+                        gameAdapter.setItem(pos2, R.drawable.rival_cell_brick_right);
+                    }
                     gridState[pos1] = gridState[pos2] = GameUtils.PLAYER;
                     gameAdapter.notifyDataSetChanged();
                     if (soundEnabled) mpBrickPlayer.start();
-                    playerTurn = false;
+                    playerTurn = !playerTurn;
                     showWhoseTurn();
                     notifyAI();
                 }
@@ -434,12 +471,17 @@ public class GameActivity extends Activity implements
             Log.d(GameUtils.DEBUG_TAG, "onScroll: Up " + pos1+" "+pos2);
             if (pos1 != AdapterView.INVALID_POSITION && pos2 != AdapterView.INVALID_POSITION) {
                 if (gridState[pos1]==GameUtils.BLANK && gridState[pos2]==GameUtils.BLANK) {
-                    gameAdapter.setItem(pos1, R.drawable.cell_brick_bottom);
-                    gameAdapter.setItem(pos2, R.drawable.cell_brick_top);
+                    if (playerTurn) {
+                        gameAdapter.setItem(pos1, R.drawable.cell_brick_bottom);
+                        gameAdapter.setItem(pos2, R.drawable.cell_brick_top);
+                    } else {
+                        gameAdapter.setItem(pos1, R.drawable.rival_cell_brick_bottom);
+                        gameAdapter.setItem(pos2, R.drawable.rival_cell_brick_top);
+                    }
                     gridState[pos1] = gridState[pos2] = GameUtils.PLAYER;
                     gameAdapter.notifyDataSetChanged();
                     if (soundEnabled) mpBrickPlayer.start();
-                    playerTurn = false;
+                    playerTurn = !playerTurn;
                     showWhoseTurn();
                     notifyAI();
                 }
@@ -450,12 +492,17 @@ public class GameActivity extends Activity implements
             Log.d(GameUtils.DEBUG_TAG, "onScroll: Down " + pos1+" "+pos2);
             if (pos1 != AdapterView.INVALID_POSITION && pos2 != AdapterView.INVALID_POSITION) {
                 if (gridState[pos1]==GameUtils.BLANK && gridState[pos2]==GameUtils.BLANK) {
-                    gameAdapter.setItem(pos1, R.drawable.cell_brick_top);
-                    gameAdapter.setItem(pos2, R.drawable.cell_brick_bottom);
+                    if (playerTurn) {
+                        gameAdapter.setItem(pos1, R.drawable.cell_brick_top);
+                        gameAdapter.setItem(pos2, R.drawable.cell_brick_bottom);
+                    } else {
+                        gameAdapter.setItem(pos1, R.drawable.rival_cell_brick_top);
+                        gameAdapter.setItem(pos2, R.drawable.rival_cell_brick_bottom);
+                    }
                     gridState[pos1] = gridState[pos2] = GameUtils.PLAYER;
                     gameAdapter.notifyDataSetChanged();
                     if (soundEnabled) mpBrickPlayer.start();
-                    playerTurn = false;
+                    playerTurn = !playerTurn;
                     showWhoseTurn();
                     notifyAI();
                 }
@@ -470,6 +517,7 @@ public class GameActivity extends Activity implements
         private int col[][] = new int[MAX_ROW][MAX_COL];
         private boolean isItMyTurn;
         private int cell;
+        private boolean isItRed;
 
         private void gridStateToColorArray() {
             for (int i=0; i<MAX_ROW; i++) {
@@ -616,7 +664,7 @@ public class GameActivity extends Activity implements
         @Override
         protected void onPreExecute() {
             Log.d(GameUtils.AI_THINKING_TAG, "Wait buddy, let me think.");
-            isItMyTurn = playerTurn;
+            isItMyTurn = isItRed = playerTurn;
             if (!isItMyTurn) progressAI.setVisibility(View.VISIBLE);
         }
 
@@ -632,29 +680,43 @@ public class GameActivity extends Activity implements
             Log.d(GameUtils.AI_THINKING_TAG, "I've finished my thinking.");
             progressAI.setVisibility(View.GONE);
 
-            if (!isItMyTurn) {
-                if (integers[0] == -1 || integers[1] == -1) {
-                    Toast.makeText(GameActivity.this, "You Win!", Toast.LENGTH_LONG).show();
-                    gameView.startAnimation(animBlink);
-                } else {
-                    if (integers[1] - integers[0] == 1) { // Horizontally adjacent tiles
-                        gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_left);
-                        gameAdapter.setItem(integers[1], R.drawable.rival_cell_brick_right);
-                    } else { // Vertically adjacent tiles
-                        gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_top);
-                        gameAdapter.setItem(integers[1], R.drawable.rival_cell_brick_bottom);
+            if (aiEnabled) {
+                if (!isItMyTurn) {
+                    if (integers[0] == -1 || integers[1] == -1) {
+                        Toast.makeText(GameActivity.this, "You Win!", Toast.LENGTH_LONG).show();
+                        gameView.startAnimation(animBlink);
+                    } else {
+                        if (integers[1] - integers[0] == 1) { // Horizontally adjacent tiles
+                            gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_left);
+                            gameAdapter.setItem(integers[1], R.drawable.rival_cell_brick_right);
+                        } else { // Vertically adjacent tiles
+                            gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_top);
+                            gameAdapter.setItem(integers[1], R.drawable.rival_cell_brick_bottom);
+                        }
+                        gridState[integers[0]] = gridState[integers[1]] = GameUtils.RIVAL;
+                        gameAdapter.notifyDataSetChanged();
+                        if (soundEnabled) mpBrickRival.start();
+                        playerTurn = true;
+                        showWhoseTurn();
+                        notifyAI();
                     }
-                    gridState[integers[0]] = gridState[integers[1]] = GameUtils.RIVAL;
-                    gameAdapter.notifyDataSetChanged();
-                    if (soundEnabled) mpBrickRival.start();
-                    playerTurn = true;
-                    showWhoseTurn();
-                    notifyAI();
+                } else {
+                    if (integers[0] == -1 || integers[1] == -1) {
+                        Toast.makeText(GameActivity.this, "I Win!", Toast.LENGTH_LONG).show();
+                        gameView.startAnimation(animBlink);
+                    }
                 }
             } else {
-                if (integers[0] == -1 || integers[1] == -1) {
-                    Toast.makeText(GameActivity.this, "I Win!", Toast.LENGTH_LONG).show();
-                    gameView.startAnimation(animBlink);
+                if (!isItRed) {
+                    if (integers[0] == -1 || integers[1] == -1) {
+                        Toast.makeText(GameActivity.this, "Blue Wins!", Toast.LENGTH_LONG).show();
+                        gameView.startAnimation(animBlink);
+                    }
+                } else {
+                    if (integers[0] == -1 || integers[1] == -1) {
+                        Toast.makeText(GameActivity.this, "Red Wins!", Toast.LENGTH_LONG).show();
+                        gameView.startAnimation(animBlink);
+                    }
                 }
             }
         }

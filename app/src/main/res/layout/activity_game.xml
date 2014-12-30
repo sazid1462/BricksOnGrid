@@ -93,6 +93,22 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/game_end"
+        android:visibility="gone"
+        android:layout_width="fill_parent"
+        android:orientation="vertical"
+        android:clickable="true"
+        android:layout_height="fill_parent">
+        <TextView
+            android:text="@string/play_again"
+            android:gravity="center_horizontal"
+            android:textColor="@color/title"
+            android:clickable="false"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/loser"
         android:visibility="gone"
         android:layout_width="fill_parent"
@@ -130,6 +146,20 @@
         <TextView
             android:id="@+id/rival_turn"
             android:text="@string/rival_turn"
+            android:gravity="center_horizontal"
+            android:textColor="@color/blue"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/red_turn"
+            android:text="@string/red_turn"
+            android:gravity="center_horizontal"
+            android:textColor="@color/red"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/blue_turn"
+            android:text="@string/blue_turn"
             android:gravity="center_horizontal"
             android:textColor="@color/blue"
             android:layout_width="fill_parent"
