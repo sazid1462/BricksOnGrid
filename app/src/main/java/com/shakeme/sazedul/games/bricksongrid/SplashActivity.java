@@ -2,6 +2,7 @@ package com.shakeme.sazedul.games.bricksongrid;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,7 +16,10 @@ public class SplashActivity extends Activity {
 
     // Animation
     Animation animFadein;
+    Animation animBlink;
     TextView txtWaterMark;
+    TextView txtWelcome;
+    private SharedPreferences prefSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,10 +28,17 @@ public class SplashActivity extends Activity {
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
+        prefSettings = getSharedPreferences(GameUtils.SHARED_PREF_SETTINGS, MODE_PRIVATE);
         // load the animation
         animFadein = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in);
+        animBlink = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.welcome);
         txtWaterMark = (TextView) findViewById(R.id.water_mark);
+        txtWelcome = (TextView) findViewById(R.id.welcome);
+
+        txtWelcome.setText(prefSettings.getString(GameUtils.APP_TAG+GameUtils.NAME_TAG, GameUtils.DEFAULT_NAME));
+
         txtWaterMark.startAnimation(animFadein);
+        txtWelcome.startAnimation(animBlink);
 
         new Handler().postDelayed(new Runnable() {
 
