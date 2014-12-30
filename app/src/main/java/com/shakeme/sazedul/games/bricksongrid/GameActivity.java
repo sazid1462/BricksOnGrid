@@ -900,7 +900,7 @@ public class GameActivity extends Activity implements
                         }
                     }
                 }
-                return (!validMove ? curScore+2 : curScore);
+                return (!validMove ? curScore-2 : curScore);
             } else {
                 curScore = parentScore;
                 for (int i=0; i<MAX_ROW; i++) {
@@ -934,7 +934,7 @@ public class GameActivity extends Activity implements
                     }
                 }
             }
-            return (!validMove ? curScore-2 : curScore);
+            return (!validMove ? curScore+2 : curScore);
         }
 
         private int[] getWinningPosition() {
