@@ -75,6 +75,7 @@ public class GameActivity extends Activity implements
     private boolean gameInitialized;
     private int redScore;
     private int blueScore;
+    private boolean playerWin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,7 +182,7 @@ public class GameActivity extends Activity implements
         else if (animation == animBlink) {
             gameView.setVisibility(View.GONE);
             if (aiEnabled) {
-                if (playerTurn) {
+                if (!playerWin) {
                     layoutLoser.startAnimation(animFadein);
                     layoutLoser.setVisibility(View.VISIBLE);
                     layoutLoser.setClickable(true);
@@ -218,6 +219,8 @@ public class GameActivity extends Activity implements
             layoutEnd.setVisibility(View.GONE);
             layoutEnd.setClickable(false);
         }
+
+        playerWin = false;
 
         gameView.startAnimation(animFadein);
         gameView.setVisibility(View.VISIBLE);
@@ -444,7 +447,7 @@ public class GameActivity extends Activity implements
                         gameAdapter.setItem(pos1, R.drawable.rival_cell_brick_right);
                         gameAdapter.setItem(pos2, R.drawable.rival_cell_brick_left);
                     }
-                    gridState[pos1] = gridState[pos2] = GameUtils.PLAYER;
+                    gridState[pos1] = gridState[pos2] = (playerTurn ? GameUtils.PLAYER : GameUtils.RIVAL);
                     gameAdapter.notifyDataSetChanged();
                     if (soundEnabled) mpBrickPlayer.start();
                     if (!classicEnabled) calculateScore(playerTurn, pos1, pos2);
@@ -466,7 +469,7 @@ public class GameActivity extends Activity implements
                         gameAdapter.setItem(pos1, R.drawable.rival_cell_brick_left);
                         gameAdapter.setItem(pos2, R.drawable.rival_cell_brick_right);
                     }
-                    gridState[pos1] = gridState[pos2] = GameUtils.PLAYER;
+                    gridState[pos1] = gridState[pos2] = (playerTurn ? GameUtils.PLAYER : GameUtils.RIVAL);
                     gameAdapter.notifyDataSetChanged();
                     if (soundEnabled) mpBrickPlayer.start();
                     if (!classicEnabled) calculateScore(playerTurn, pos1, pos2);
@@ -488,7 +491,7 @@ public class GameActivity extends Activity implements
                         gameAdapter.setItem(pos1, R.drawable.rival_cell_brick_bottom);
                         gameAdapter.setItem(pos2, R.drawable.rival_cell_brick_top);
                     }
-                    gridState[pos1] = gridState[pos2] = GameUtils.PLAYER;
+                    gridState[pos1] = gridState[pos2] = (playerTurn ? GameUtils.PLAYER : GameUtils.RIVAL);
                     gameAdapter.notifyDataSetChanged();
                     if (soundEnabled) mpBrickPlayer.start();
                     if (!classicEnabled) calculateScore(playerTurn, pos1, pos2);
@@ -510,7 +513,7 @@ public class GameActivity extends Activity implements
                         gameAdapter.setItem(pos1, R.drawable.rival_cell_brick_top);
                         gameAdapter.setItem(pos2, R.drawable.rival_cell_brick_bottom);
                     }
-                    gridState[pos1] = gridState[pos2] = GameUtils.PLAYER;
+                    gridState[pos1] = gridState[pos2] = (playerTurn ? GameUtils.PLAYER : GameUtils.RIVAL);
                     gameAdapter.notifyDataSetChanged();
                     if (soundEnabled) mpBrickPlayer.start();
                     if (!classicEnabled) calculateScore(playerTurn, pos1, pos2);
@@ -521,6 +524,46 @@ public class GameActivity extends Activity implements
             }
         }
     }
+
+//    private void giveScore(boolean whom, int pos) {
+//        int pUp = pos-MAX_COL;
+//        int pDown = pos+MAX_COL;
+//        int pLeft = pos-1;
+//        int pRight = pos+1;
+//
+//        if (pUp >= 0) {
+//            if (whom) {
+//                redScore += (gridState[pUp] == GameUtils.PLAYER ? 1 : -1);
+//            }
+//            else {
+//                blueScore += (gridState[pUp] == GameUtils.RIVAL ? 1 : -1);
+//            }
+//        }
+//        if (pDown < MAX_CELL ) {
+//            if (whom) {
+//                redScore += (gridState[pDown] == GameUtils.PLAYER ? 1 : -1);
+//            }
+//            else {
+//                blueScore += (gridState[pDown] == GameUtils.RIVAL ? 1 : -1);
+//            }
+//        }
+//        if ((pos%MAX_COL) != 0 ) {
+//            if (whom) {
+//                redScore += (gridState[pLeft] == GameUtils.PLAYER ? 1 : -1);
+//            }
+//            else {
+//                blueScore += (gridState[pLeft] == GameUtils.RIVAL ? 1 : -1);
+//            }
+//        }
+//        if ((pRight%MAX_COL) != 0 ) {
+//            if (whom) {
+//                redScore += (gridState[pRight] == GameUtils.PLAYER ? 1 : -1);
+//            }
+//            else {
+//                blueScore += (gridState[pRight] == GameUtils.RIVAL ? 1 : -1);
+//            }
+//        }
+//    }
 
     private void giveScore(boolean whom, int pos) {
         int pUp = pos-MAX_COL;
@@ -653,10 +696,15 @@ public class GameActivity extends Activity implements
                     if (col[i][j] == GameUtils.BLANK) {
                         if (j+1<MAX_COL && col[i][j+1]==GameUtils.BLANK) {
 
-                            col[i][j] = col[i][j+1] = GameUtils.RIVAL;
-                            tempValue = calculateHuristics(false, curValue, 8);
-                            col[i][j] = col[i][j+1] = GameUtils.BLANK;
-
+                            if (isItMyTurn) {
+                                col[i][j] = col[i][j + 1] = GameUtils.RIVAL;
+                                tempValue = calculateHuristics(false, curValue, 8);
+                                col[i][j] = col[i][j + 1] = GameUtils.BLANK;
+                            } else {
+                                ret[0] = i*MAX_ROW + j;
+                                ret[1] = i*MAX_ROW + j+1;
+                                return ret;
+                            }
                             if (curValue <= tempValue) {
                                 ret[0] = i*MAX_ROW + j;
                                 ret[1] = i*MAX_ROW + j+1;
@@ -666,10 +714,15 @@ public class GameActivity extends Activity implements
                         }
                         if (i+1<MAX_ROW && col[i+1][j]==GameUtils.BLANK) {
 
-                            col[i][j] = col[i+1][j] = GameUtils.RIVAL;
-                            tempValue = calculateHuristics(false, curValue, 8);
-                            col[i][j] = col[i+1][j] = GameUtils.BLANK;
-
+                            if (isItMyTurn) {
+                                col[i][j] = col[i + 1][j] = GameUtils.RIVAL;
+                                tempValue = calculateHuristics(false, curValue, 8);
+                                col[i][j] = col[i + 1][j] = GameUtils.BLANK;
+                            } else {
+                                ret[0] = i*MAX_ROW + j;
+                                ret[1] = (i+1)*MAX_ROW + j;
+                                return ret;
+                            }
                             if (curValue <= tempValue) {
                                 ret[0] = i*MAX_ROW + j;
                                 ret[1] = (i+1)*MAX_ROW + j;
@@ -707,8 +760,9 @@ public class GameActivity extends Activity implements
         @Override
         protected void onPreExecute() {
             Log.d(GameUtils.AI_THINKING_TAG, "Wait buddy, let me think.");
-            isItMyTurn = isItRed = playerTurn;
-            if (!isItMyTurn) progressAI.setVisibility(View.VISIBLE);
+            isItMyTurn = !playerTurn;
+            isItRed = playerTurn;
+            if (isItMyTurn) progressAI.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -724,10 +778,11 @@ public class GameActivity extends Activity implements
             progressAI.setVisibility(View.GONE);
 
             if (aiEnabled) {
-                if (!isItMyTurn) {
+                if (isItMyTurn) {
                     if (integers[0] == -1 || integers[1] == -1) {
                         Toast.makeText(GameActivity.this, "You Win!", Toast.LENGTH_LONG).show();
                         gameView.startAnimation(animBlink);
+                        playerWin = true;
                     } else {
                         if (integers[1] - integers[0] == 1) { // Horizontally adjacent tiles
                             gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_left);
@@ -771,7 +826,7 @@ public class GameActivity extends Activity implements
     private class NonClassicAI extends AsyncTask<Void, Void, Integer[]> {
         private int col[][] = new int[MAX_ROW][MAX_COL];
         private boolean isItMyTurn;
-        private int cell;
+//        private int cell;
         private boolean isItRed;
 
         private void gridStateToColorArray() {
@@ -780,84 +835,113 @@ public class GameActivity extends Activity implements
             }
         }
 
-        private int calculateHuristics(boolean myTurn, int parentValue, int d) {
+        private int giveScore(boolean isMe, int i, int j) {
+            int ret = 0;
+
+            if (i-1>=0 && col[i-1][j] == (isMe ? GameUtils.RIVAL : GameUtils.PLAYER)) {
+                ret++;
+            }
+            if (i+1<MAX_ROW && col[i+1][j] == (isMe ? GameUtils.RIVAL : GameUtils.PLAYER)) {
+                ret++;
+            }
+            if (j-1>=0 && col[i][j-1] == (isMe ? GameUtils.RIVAL : GameUtils.PLAYER)) {
+                ret++;
+            }
+            if (j+1<MAX_COL && col[i][j+1] == (isMe ? GameUtils.RIVAL : GameUtils.PLAYER)) {
+                ret++;
+            }
+            return ret;
+        }
+
+        private int calculateMyScore(boolean isMe, int i1, int j1, int i2, int j2) {
+            int ret = giveScore(isMe, i1, j1);
+            ret += giveScore(isMe, i2, j2);
+            return ret;
+        }
+
+        private int calculateHuristics(boolean myTurn, int parentScore, int d) {
 //            Log.d(GameUtils.AI_THINKING_TAG, "I'm still thinking... "+myTurn+" "+parentValue);
-            if (cell > 25) return 0;
-            if (d==0) return 0;
-            int curValue;
-            int tempValue;
+//            if (cell > 25) return 0;
+            if (d==0) return parentScore;
+            int curScore;
+            int tempScore;
+            boolean validMove = false;
 
             if (myTurn) {
 
-                curValue = -1;
+                curScore = parentScore;
                 for (int i=0; i<MAX_ROW; i++) {
                     for (int j=0; j<MAX_COL; j++) {
                         if (col[i][j] == GameUtils.BLANK) {
                             if (j+1<MAX_COL && col[i][j+1]==GameUtils.BLANK) {
 
                                 col[i][j] = col[i][j+1] = GameUtils.RIVAL;
-                                tempValue = calculateHuristics(false, curValue, d-1);
+                                tempScore = calculateHuristics(false, parentScore+calculateMyScore(true, i, j, i, j+1), d-1);
                                 col[i][j] = col[i][j+1] = GameUtils.BLANK;
 
-                                if (curValue <= tempValue) {
-                                    curValue = tempValue;
-                                    if (curValue>=parentValue) return curValue;
+                                validMove = true;
+
+                                if (curScore <= tempScore) {
+                                    curScore = tempScore;
+                                    if (curScore>=parentScore) return curScore;
                                 }
                             }
                             if (i+1<MAX_ROW && col[i+1][j]==GameUtils.BLANK) {
 
                                 col[i][j] = col[i+1][j] = GameUtils.RIVAL;
-                                tempValue = calculateHuristics(false, curValue, d-1);
+                                tempScore = calculateHuristics(false, parentScore+calculateMyScore(true, i, j, i+1, j), d-1);
                                 col[i][j] = col[i+1][j] = GameUtils.BLANK;
 
-                                if (curValue <= tempValue) {
-                                    curValue = tempValue;
-                                    if (curValue>=parentValue) return curValue;
+                                if (curScore <= tempScore) {
+                                    curScore = tempScore;
+                                    if (curScore>=parentScore) return curScore;
                                 }
                             }
                         }
                     }
                 }
-                return curValue;
+                return (!validMove ? curScore+2 : curScore);
             } else {
-                curValue = 1;
+                curScore = parentScore;
                 for (int i=0; i<MAX_ROW; i++) {
                     for (int j=0; j<MAX_COL; j++) {
                         if (col[i][j] == GameUtils.BLANK) {
                             if (j+1<MAX_COL && col[i][j+1]==GameUtils.BLANK) {
 
                                 col[i][j] = col[i][j+1] = GameUtils.PLAYER;
-                                tempValue = calculateHuristics(true, curValue, d-1);
+                                tempScore = calculateHuristics(true, parentScore-calculateMyScore(false, i, j, i, j+1), d-1);
                                 col[i][j] = col[i][j+1] = GameUtils.BLANK;
 
-                                if (curValue >= tempValue) {
-                                    curValue = tempValue;
-                                    if (curValue<=parentValue) return curValue;
+                                validMove = true;
+
+                                if (curScore >= tempScore) {
+                                    curScore = tempScore;
+                                    if (curScore<=parentScore) return curScore;
                                 }
                             }
                             if (i+1<MAX_ROW && col[i+1][j]==GameUtils.BLANK) {
 
                                 col[i][j] = col[i+1][j] = GameUtils.PLAYER;
-                                tempValue = calculateHuristics(true, curValue, d-1);
+                                tempScore = calculateHuristics(true, parentScore-calculateMyScore(false, i, j, i+1, j), d-1);
                                 col[i][j] = col[i+1][j] = GameUtils.BLANK;
 
-                                if (curValue >= tempValue) {
-                                    curValue = tempValue;
-                                    if (curValue<=parentValue) return curValue;
+                                if (curScore >= tempScore) {
+                                    curScore = tempScore;
+                                    if (curScore<=parentScore) return curScore;
                                 }
                             }
                         }
                     }
                 }
             }
-            return curValue;
+            return (!validMove ? curScore-2 : curScore);
         }
 
         private int[] getWinningPosition() {
             int ret[] = new int[2];
-            int curValue = -100000;
-            int tempValue;
-            cell = calculateAvailableCell();
+            int curScore = -100000;
+            int tempScore;
+//            cell = calculateAvailableCell();
 
             ret[0] = ret[1] = -1;
             for (int i=0; i<MAX_ROW; i++) {
@@ -865,62 +949,58 @@ public class GameActivity extends Activity implements
                     if (col[i][j] == GameUtils.BLANK) {
                         if (j+1<MAX_COL && col[i][j+1]==GameUtils.BLANK) {
 
-                            col[i][j] = col[i][j+1] = GameUtils.RIVAL;
-                            tempValue = calculateHuristics(false, curValue, 8);
-                            col[i][j] = col[i][j+1] = GameUtils.BLANK;
-
-                            if (curValue <= tempValue) {
+                            if (isItMyTurn) {
+                                col[i][j] = col[i][j + 1] = GameUtils.RIVAL;
+                                tempScore = calculateHuristics(false, calculateMyScore(true, i, j, i, j + 1), 6);
+                                col[i][j] = col[i][j + 1] = GameUtils.BLANK;
+                            } else {
                                 ret[0] = i*MAX_ROW + j;
                                 ret[1] = i*MAX_ROW + j+1;
-                                curValue = tempValue;
-                                if (curValue==1) return ret;
+                                return ret;
+                            }
+                            if (curScore < tempScore) {
+                                ret[0] = i*MAX_ROW + j;
+                                ret[1] = i*MAX_ROW + j+1;
+                                curScore = tempScore;
                             }
                         }
                         if (i+1<MAX_ROW && col[i+1][j]==GameUtils.BLANK) {
 
-                            col[i][j] = col[i+1][j] = GameUtils.RIVAL;
-                            tempValue = calculateHuristics(false, curValue, 8);
-                            col[i][j] = col[i+1][j] = GameUtils.BLANK;
-
-                            if (curValue <= tempValue) {
+                            if (isItMyTurn) {
+                                col[i][j] = col[i + 1][j] = GameUtils.RIVAL;
+                                tempScore = calculateHuristics(false, calculateMyScore(true, i, j, i + 1, j), 6);
+                                col[i][j] = col[i + 1][j] = GameUtils.BLANK;
+                            } else {
                                 ret[0] = i*MAX_ROW + j;
                                 ret[1] = (i+1)*MAX_ROW + j;
-                                curValue = tempValue;
-                                if (curValue==1) return ret;
+                                return ret;
+                            }
+                            if (curScore < tempScore) {
+                                ret[0] = i*MAX_ROW + j;
+                                ret[1] = (i+1)*MAX_ROW + j;
+                                curScore = tempScore;
                             }
                         }
                     }
-                }
-            }
-            if (curValue == 0) {
-                int pos;
-                while (true){
-                    pos = (int) (Math.round(Math.random() * 997) % MAX_CELL);
-                    while (gridState[pos] != GameUtils.BLANK) {
-                        pos = (int) (Math.round(Math.random() * 997) % MAX_CELL);
-                    }
-                    if ((pos+1)%dim != 0) {
-                        if (pos+1 < MAX_CELL && gridState[pos+1] == GameUtils.BLANK) return new int[]{pos, pos+1};
-                    }
-                    if (pos+MAX_COL < MAX_CELL && gridState[pos+MAX_COL] == GameUtils.BLANK) return new int[]{pos, pos+MAX_COL};
                 }
             }
             return ret;
         }
 
-        private int calculateAvailableCell() {
-            int c = 0;
-            for (int i=0; i<MAX_CELL; i++) {
-                if (gridState[i]==GameUtils.BLANK) c++;
-            }
-            return c;
-        }
+//        private int calculateAvailableCell() {
+//            int c = 0;
+//            for (int i=0; i<MAX_CELL; i++) {
+//                if (gridState[i]==GameUtils.BLANK) c++;
+//            }
+//            return c;
+//        }
 
         @Override
         protected void onPreExecute() {
             Log.d(GameUtils.AI_THINKING_TAG, "Wait buddy, let me think.");
-            isItMyTurn = isItRed = playerTurn;
-            if (!isItMyTurn) progressAI.setVisibility(View.VISIBLE);
+            isItMyTurn = !playerTurn;
+            isItRed = playerTurn;
+            if (isItMyTurn) progressAI.setVisibility(View.VISIBLE);
         }
 
         @Override
@@ -936,38 +1016,74 @@ public class GameActivity extends Activity implements
             progressAI.setVisibility(View.GONE);
 
             if (aiEnabled) {
-                if (integers[0] == -1 || integers[1] == -1) {
-                    if (redScore > blueScore) {
-                        Toast.makeText(GameActivity.this, "You Win!", Toast.LENGTH_LONG).show();
-                        gameView.startAnimation(animBlink);
+                if (isItMyTurn) {
+                    if (integers[0] == -1 || integers[1] == -1) {
+                        redScore+=2;
+                        txtYourScore.setText(Integer.toString(redScore));
+                        if (redScore > blueScore) {
+                            Toast.makeText(GameActivity.this, "You Win!", Toast.LENGTH_LONG).show();
+                            gameView.startAnimation(animBlink);
+                            playerWin = true;
+                        } else {
+                            Toast.makeText(GameActivity.this, "I Win!", Toast.LENGTH_LONG).show();
+                            gameView.startAnimation(animBlink);
+                        }
                     } else {
-                        Toast.makeText(GameActivity.this, "I Win!", Toast.LENGTH_LONG).show();
-                        gameView.startAnimation(animBlink);
+                        if (integers[1] - integers[0] == 1) { // Horizontally adjacent tiles
+                            gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_left);
+                            gameAdapter.setItem(integers[1], R.drawable.rival_cell_brick_right);
+                        } else { // Vertically adjacent tiles
+                            gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_top);
+                            gameAdapter.setItem(integers[1], R.drawable.rival_cell_brick_bottom);
+                        }
+                        gridState[integers[0]] = gridState[integers[1]] = GameUtils.RIVAL;
+                        gameAdapter.notifyDataSetChanged();
+                        if (soundEnabled) mpBrickRival.start();
+                        calculateScore(playerTurn, integers[0], integers[1]);
+                        playerTurn = true;
+                        showWhoseTurn();
+                        notifyAI();
                     }
                 } else {
-                    if (integers[1] - integers[0] == 1) { // Horizontally adjacent tiles
-                        gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_left);
-                        gameAdapter.setItem(integers[1], R.drawable.rival_cell_brick_right);
-                    } else { // Vertically adjacent tiles
-                        gameAdapter.setItem(integers[0], R.drawable.rival_cell_brick_top);
-                        gameAdapter.setItem(integers[1], R.drawable.rival_cell_brick_bottom);
+                    if (integers[0] == -1 || integers[1] == -1) {
+                        blueScore+=2;
+                        txtRivalScore.setText(Integer.toString(blueScore));
+                        if (redScore > blueScore) {
+                            Toast.makeText(GameActivity.this, "You Win!", Toast.LENGTH_LONG).show();
+                            gameView.startAnimation(animBlink);
+                            playerWin = true;
+                        } else {
+                            Toast.makeText(GameActivity.this, "I Win!", Toast.LENGTH_LONG).show();
+                            gameView.startAnimation(animBlink);
+                        }
                     }
-                    gridState[integers[0]] = gridState[integers[1]] = GameUtils.RIVAL;
-                    gameAdapter.notifyDataSetChanged();
-                    if (soundEnabled) mpBrickRival.start();
-                    calculateScore(playerTurn, integers[0], integers[1]);
-                    playerTurn = true;
-                    showWhoseTurn();
-                    notifyAI();
                 }
             } else {
-                if (integers[0] == -1 || integers[1] == -1) {
-                    if (redScore > blueScore) {
-                        Toast.makeText(GameActivity.this, "Red Wins!", Toast.LENGTH_LONG).show();
-                        gameView.startAnimation(animBlink);
-                    } else {
-                        Toast.makeText(GameActivity.this, "Blue Wins!", Toast.LENGTH_LONG).show();
-                        gameView.startAnimation(animBlink);
+                if (isItRed) {
+                    if (integers[0] == -1 || integers[1] == -1) {
+                        redScore+=2;
+                        txtYourScore.setText(Integer.toString(redScore));
+                        if (redScore > blueScore) {
+                            Toast.makeText(GameActivity.this, "Red Wins!", Toast.LENGTH_LONG).show();
+                            gameView.startAnimation(animBlink);
+                            playerWin = true;
+                        } else {
+                            Toast.makeText(GameActivity.this, "Blue Wins!", Toast.LENGTH_LONG).show();
+                            gameView.startAnimation(animBlink);
+                        }
+                    }
+                } else {
+                    if (integers[0] == -1 || integers[1] == -1) {
+                        blueScore+=2;
+                        txtRivalScore.setText(Integer.toString(blueScore));
+                        if (redScore > blueScore) {
+                            Toast.makeText(GameActivity.this, "Red Wins!", Toast.LENGTH_LONG).show();
+                            gameView.startAnimation(animBlink);
+                            playerWin = true;
+                        } else {
+                            Toast.makeText(GameActivity.this, "Blue Wins!", Toast.LENGTH_LONG).show();
+                            gameView.startAnimation(animBlink);
+                        }
                     }
                 }
             }

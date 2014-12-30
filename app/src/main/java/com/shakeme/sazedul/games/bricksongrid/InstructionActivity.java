@@ -57,6 +57,7 @@ public class InstructionActivity extends Activity implements
 
         // check for fade out animation
         if (animation == animFadeout) {
+            scrollView.setVisibility(View.INVISIBLE);
             finish();
         }
     }
