@@ -34,7 +34,7 @@
     <string name="dimension">Dimension</string>
     <string name="dimension_hint">3 to 8</string>
     <string name="lbl_instruction">
-        Select new game for start a new game.\n\n
+        \nSelect new game for start a new game.\n\n
 
         In the settings you can set the preferred settings of yours.\n
         Name: Type your name if you want.\n
@@ -46,7 +46,7 @@
         Classic: Keep it on if you want a classic game mode on. Otherwise keep it off.\n\n
 
         Classic mode: Players have to place bricks on the grid. The last player able to place a brick on the grid until the grid is full will win the game.\n
-        Non Classic mode: Players have to place bricks on the grid. Placing bricks will give certain points to the player who places it. For every adjacent own bricks will give the player addition points. Player having the highest points after the grid is full will win the game.\n
+        Non Classic mode: Players have to place bricks on the grid. Placing bricks will give 2 points to the player who places it. For every adjacent tiles having own bricks will give the player additional 1 point. Additional 2 points will be given for last move. Player having the highest points after the grid is full will win the game.\n\n
 
         Have fun!
     </string>
