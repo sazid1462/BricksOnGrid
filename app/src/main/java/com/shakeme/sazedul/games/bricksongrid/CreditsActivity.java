@@ -102,6 +102,7 @@ public class CreditsActivity extends Activity implements
     public void exitActivity(View view) {
         if (sound) mpButton.start();
         scrollView.startAnimation(animFadeout);
+        view.setClickable(false);
     }
 
     @Override

@@ -32,6 +32,11 @@ public class GameActivity extends Activity implements
         View.OnClickListener,
         Animation.AnimationListener{
 
+    int dx[] = {0, 1, 0, -1};
+    int dy[] = {1, 0, -1, 0};
+
+    private static final int RIGHT = 0, DOWN = 1, LEFT = 2, UP = 3;
+
     private int MAX_CELL;
     private int MAX_ROW;
     private int MAX_COL;
@@ -843,23 +848,19 @@ public class GameActivity extends Activity implements
     }
 
     /**
-     * Created by Sazedul on 28-Dec-14.
+     * Created by Sazedul on 30-Dec-14.
      */
     private class NonClassicAI extends AsyncTask<Void, Void, Integer[]> {
         private int col[][] = new int[MAX_ROW][MAX_COL];
-        private ArrayList<Integer> newMoves;
+//        private ArrayList<Integer> newMoves;
         private boolean isItMyTurn;
-        private int cell;
+//        private int cell;
         private boolean isItRed;
-
-        int dx[] = {0, 1, 0, -1};
-        int dy[] = {1, 0, -1, 0};
 
         private void gridStateToColorArray() {
             for (int i=0; i<MAX_ROW; i++) {
                 System.arraycopy(gridState, i * MAX_ROW, col[i], 0, MAX_COL);
             }
-            newMoves = moves;
         }
 
         private int giveScore(boolean isMe, int i, int j) {
@@ -974,7 +975,7 @@ public class GameActivity extends Activity implements
                             for (int l = 0; l < 2; l++) {
                                 nx = x + dx[l];
                                 ny = y + dy[l];
-                                if (nx >= 0 && nx < MAX_ROW && ny >= 0 && ny < MAX_COL && col[nx][ny] == GameUtils.BLANK) {
+                                if (nx < MAX_ROW && ny < MAX_COL && col[nx][ny] == GameUtils.BLANK) {
 
                                     col[x][y] = col[nx][ny] = GameUtils.RIVAL;
                                     alpha = Math.max(alpha, alphabeta(false, alpha, beta, d - 1));
@@ -1022,18 +1023,25 @@ public class GameActivity extends Activity implements
 
             for (int x=0; x<MAX_ROW; x++) {
                 for (int y=0; y<MAX_COL; y++) {
-                    if (col[x][y] != GameUtils.BLANK || col[x][y] != GameUtils.BLOCKED) {
+                    if (col[x][y] == GameUtils.PLAYER || col[x][y] == GameUtils.RIVAL) {
                         for (int i=0; i<4; i++) {
                             nx = x+dx[i];
                             ny = y+dy[i];
                             if (nx>=0 && nx<MAX_ROW && ny>=0 && ny<MAX_COL) {
-                                if (col[x][y]==GameUtils.PLAYER && col[x][y]==col[nx][ny]) red++;
-                                if (col[x][y]==GameUtils.RIVAL && col[x][y]==col[nx][ny]) blue++;
+                                if (col[x][y]==GameUtils.PLAYER) {
+                                    if (col[x][y]==col[nx][ny]) red++;
+                                    else blue++;
+                                } else blue++;
+                                if (col[x][y]==GameUtils.RIVAL) {
+                                    if (col[x][y]==col[nx][ny]) blue++;
+                                    else red++;
+                                } else red++;
                             }
                         }
                     }
                 }
             }
+//            Log.d("heuristics", Integer.toString(blue-red));
             return blue-red;
         }
 
@@ -1060,8 +1068,39 @@ public class GameActivity extends Activity implements
 
                 }
             } else {
-                for (int i = 0; i < moves.size(); i++) {
-                    ret = getPositionForMove(ret, moves.get(i));
+//                for (int i = 0; i < moves.size(); i++) {
+//                    ret = getPositionForMove(ret, moves.get(i));
+//                }
+                int nx, ny;
+                int curScore = -10000;
+                int tempScore;
+
+                for (int x = 0; x < MAX_ROW; x++) {
+                    for (int y = 0; y < MAX_COL; y++) {
+                        if (col[x][y] == GameUtils.BLANK) {
+                            for (int l = 0; l < 2; l++) {
+                                nx = x + dx[l];
+                                ny = y + dy[l];
+                                if (nx < MAX_ROW && ny < MAX_COL && col[nx][ny] == GameUtils.BLANK) {
+
+                                    if (isItMyTurn) {
+                                        col[x][y] = col[nx][ny] = GameUtils.RIVAL;
+                                        tempScore = alphabeta(false, curScore, 10000, 2);
+                                        col[x][y] = col[nx][ny] = GameUtils.BLANK;
+                                    } else {
+                                        ret[0] = x * MAX_ROW + y;
+                                        ret[1] = nx * MAX_ROW + ny;
+                                        return ret;
+                                    }
+                                    if (curScore < tempScore) {
+                                        ret[0] = x * MAX_ROW + y;
+                                        ret[1] = nx * MAX_ROW + ny;
+                                        curScore = tempScore;
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
             return ret;
@@ -1069,43 +1108,45 @@ public class GameActivity extends Activity implements
 
         private int[] getPositionForMove(int[] ret, int move) {
 
-            int curScore = -100000;
+            int curScore = -10000;
             int tempScore;
 
-            int x = move/MAX_COL, i1, i2;
-            int y = move%MAX_COL, j1, j2;
+            int x = move/MAX_COL, nx;
+            int y = move%MAX_COL, ny;
 
-            for (int k=0; k<4; k++) {
-                i1 = x + dx[k];
-                j1 = y + dy[k];
-                if (i1>=0 && i1<MAX_ROW && j1>=0 && j1<MAX_COL && col[i1][j1] == GameUtils.BLANK) {
-                    for (int l=0; l<4; l++) {
-                        i2 = i1 + dx[l];
-                        j2 = j1 + dy[l];
-                        if (i2>=0 && i2<MAX_ROW && j2>=0 && j2<MAX_COL && col[i2][j2] == GameUtils.BLANK) {
+//            for (int k=0; k<4; k++) {
+//                i1 = x + dx[k];
+//                j1 = y + dy[k];
+//                if (i1>=0 && i1<MAX_ROW && j1>=0 && j1<MAX_COL && col[i1][j1] == GameUtils.BLANK) {
+//                    for (int l=0; l<4; l++) {
+//                        i2 = i1 + dx[l];
+//                        j2 = j1 + dy[l];
+//                        if (i2>=0 && i2<MAX_ROW && j2>=0 && j2<MAX_COL && col[i2][j2] == GameUtils.BLANK) {
+//
+//                            if (isItMyTurn) {
+//                                col[i1][j1] = col[i2][j2] = GameUtils.RIVAL;
+////                                newMoves.add(i1 * MAX_ROW + j1);
+////                                newMoves.add(i2 * MAX_ROW + j2);
+//                                tempScore = alphabeta(false, curScore, 10000, 4);
+//                                col[i1][j1] = col[i2][j2] = GameUtils.BLANK;
+////                                newMoves.remove(newMoves.size()-1);
+////                                newMoves.remove(newMoves.size()-1);
+//                            } else {
+//                                ret[0] = i1 * MAX_ROW + j1;
+//                                ret[1] = i2 * MAX_ROW + j2;
+//                                return ret;
+//                            }
+//                            if (curScore < tempScore) {
+//                                ret[0] = i1 * MAX_ROW + j1;
+//                                ret[1] = i2 * MAX_ROW + j2;
+//                                curScore = tempScore;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
 
-                            if (isItMyTurn) {
-                                col[i1][j1] = col[i2][j2] = GameUtils.RIVAL;
-//                                newMoves.add(i1 * MAX_ROW + j1);
-//                                newMoves.add(i2 * MAX_ROW + j2);
-                                tempScore = alphabeta(false, curScore, 10000, 3);
-                                col[i1][j1] = col[i2][j2] = GameUtils.BLANK;
-//                                newMoves.remove(newMoves.size()-1);
-//                                newMoves.remove(newMoves.size()-1);
-                            } else {
-                                ret[0] = i1 * MAX_ROW + j1;
-                                ret[1] = i2 * MAX_ROW + j2;
-                                return ret;
-                            }
-                            if (curScore < tempScore) {
-                                ret[0] = i1 * MAX_ROW + j1;
-                                ret[1] = i2 * MAX_ROW + j2;
-                                curScore = tempScore;
-                            }
-                        }
-                    }
-                }
-            }
+
             return ret;
         }
 
@@ -1119,8 +1160,8 @@ public class GameActivity extends Activity implements
 
         @Override
         protected void onPreExecute() {
-            Log.d(GameUtils.AI_THINKING_TAG, "Wait buddy, let me think.");
-            cell = calculateAvailableCell();
+//            Log.d(GameUtils.AI_THINKING_TAG, "Wait buddy, let me think.");
+//            cell = calculateAvailableCell();
             isItMyTurn = !playerTurn;
             isItRed = playerTurn;
             if (isItMyTurn) progressAI.setVisibility(View.VISIBLE);
@@ -1135,13 +1176,13 @@ public class GameActivity extends Activity implements
 
         @Override
         protected void onPostExecute(Integer[] integers) {
-            Log.d(GameUtils.AI_THINKING_TAG, "I've finished my thinking.");
+//            Log.d(GameUtils.AI_THINKING_TAG, "I've finished my thinking.");
             progressAI.setVisibility(View.GONE);
 
             if (aiEnabled) {
                 if (isItMyTurn) {
                     if (integers[0] == -1 || integers[1] == -1) {
-                        redScore+=2;
+//                        redScore+=2;
                         txtYourScore.setText(Integer.toString(redScore));
                         if (redScore > blueScore) {
                             Toast.makeText(GameActivity.this, "You Win!", Toast.LENGTH_LONG).show();
@@ -1209,7 +1250,7 @@ public class GameActivity extends Activity implements
                     }
                 } else {
                     if (integers[0] == -1 || integers[1] == -1) {
-                        blueScore+=2;
+//                        blueScore+=2;
                         txtRivalScore.setText(Integer.toString(blueScore));
                         if (redScore > blueScore) {
                             Toast.makeText(GameActivity.this, "Red Wins!", Toast.LENGTH_LONG).show();
