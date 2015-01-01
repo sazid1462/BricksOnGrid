@@ -32,7 +32,7 @@
     <string name="your_turn">Your turn!</string>
     <string name="rival_turn">My turn</string>
     <string name="dimension">Dimension</string>
-    <string name="dimension_hint">3 to 8</string>
+    <string name="dimension_hint">3 to 9</string>
     <string name="lbl_instruction">
         Select new game for start a new game.\n\n
 
