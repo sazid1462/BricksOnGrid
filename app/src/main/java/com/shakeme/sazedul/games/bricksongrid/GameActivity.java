@@ -51,6 +51,7 @@ public class GameActivity extends Activity implements
     private String name;
     private int blockedCell;
     private int dim;
+    private int difficulty;
     private boolean musicEnabled;
     private boolean soundEnabled;
     private boolean aiEnabled;
@@ -110,6 +111,7 @@ public class GameActivity extends Activity implements
         name = prefSettings.getString(GameUtils.APP_TAG+GameUtils.NAME_TAG, GameUtils.DEFAULT_NAME);
         blockedCell = prefSettings.getInt(GameUtils.APP_TAG+GameUtils.BLOCKED_TILE_TAG, GameUtils.DEFAULT_BLOCKED);
         dim = prefSettings.getInt(GameUtils.APP_TAG+GameUtils.DIMENSION_TAG, GameUtils.DEFAULT_DIMENSION);
+        difficulty = prefSettings.getInt(GameUtils.APP_TAG+GameUtils.DIFFICULTY_TAG, GameUtils.DEFAULT_DIFFICULTY);
         musicEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.MUSIC_TAG, GameUtils.DEFAULT_MUSIC);
         soundEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.SOUND_TAG, GameUtils.DEFAULT_SOUND);
         aiEnabled = prefSettings.getBoolean(GameUtils.APP_TAG+GameUtils.AI_TAG, GameUtils.DEFAULT_AI);
@@ -552,46 +554,6 @@ public class GameActivity extends Activity implements
         }
     }
 
-//    private void giveScore(boolean whom, int pos) {
-//        int pUp = pos-MAX_COL;
-//        int pDown = pos+MAX_COL;
-//        int pLeft = pos-1;
-//        int pRight = pos+1;
-//
-//        if (pUp >= 0) {
-//            if (whom) {
-//                redScore += (gridState[pUp] == GameUtils.PLAYER ? 1 : -1);
-//            }
-//            else {
-//                blueScore += (gridState[pUp] == GameUtils.RIVAL ? 1 : -1);
-//            }
-//        }
-//        if (pDown < MAX_CELL ) {
-//            if (whom) {
-//                redScore += (gridState[pDown] == GameUtils.PLAYER ? 1 : -1);
-//            }
-//            else {
-//                blueScore += (gridState[pDown] == GameUtils.RIVAL ? 1 : -1);
-//            }
-//        }
-//        if ((pos%MAX_COL) != 0 ) {
-//            if (whom) {
-//                redScore += (gridState[pLeft] == GameUtils.PLAYER ? 1 : -1);
-//            }
-//            else {
-//                blueScore += (gridState[pLeft] == GameUtils.RIVAL ? 1 : -1);
-//            }
-//        }
-//        if ((pRight%MAX_COL) != 0 ) {
-//            if (whom) {
-//                redScore += (gridState[pRight] == GameUtils.PLAYER ? 1 : -1);
-//            }
-//            else {
-//                blueScore += (gridState[pRight] == GameUtils.RIVAL ? 1 : -1);
-//            }
-//        }
-//    }
-
     private void giveScore(boolean whom, int pos) {
         int pUp = pos-MAX_COL;
         int pDown = pos+MAX_COL;
@@ -638,7 +600,7 @@ public class GameActivity extends Activity implements
             }
         }
 
-        private int calculateHuristics(boolean myTurn, int parentValue, int d) {
+        private int findHuristics(boolean myTurn, int parentValue, int d) {
 //            Log.d(GameUtils.AI_THINKING_TAG, "I'm still thinking... "+myTurn+" "+parentValue);
             if (cell > 25) return 0;
             if (d==0) return 0;
@@ -654,7 +616,7 @@ public class GameActivity extends Activity implements
                             if (j+1<MAX_COL && col[i][j+1]==GameUtils.BLANK) {
 
                                 col[i][j] = col[i][j+1] = GameUtils.RIVAL;
-                                tempValue = calculateHuristics(false, curValue, d-1);
+                                tempValue = findHuristics(false, curValue, d-1);
                                 col[i][j] = col[i][j+1] = GameUtils.BLANK;
 
                                 if (curValue <= tempValue) {
@@ -665,7 +627,7 @@ public class GameActivity extends Activity implements
                             if (i+1<MAX_ROW && col[i+1][j]==GameUtils.BLANK) {
 
                                 col[i][j] = col[i+1][j] = GameUtils.RIVAL;
-                                tempValue = calculateHuristics(false, curValue, d-1);
+                                tempValue = findHuristics(false, curValue, d-1);
                                 col[i][j] = col[i+1][j] = GameUtils.BLANK;
 
                                 if (curValue <= tempValue) {
@@ -685,7 +647,7 @@ public class GameActivity extends Activity implements
                             if (j+1<MAX_COL && col[i][j+1]==GameUtils.BLANK) {
 
                                 col[i][j] = col[i][j+1] = GameUtils.PLAYER;
-                                tempValue = calculateHuristics(true, curValue, d-1);
+                                tempValue = findHuristics(true, curValue, d-1);
                                 col[i][j] = col[i][j+1] = GameUtils.BLANK;
 
                                 if (curValue >= tempValue) {
@@ -696,7 +658,7 @@ public class GameActivity extends Activity implements
                             if (i+1<MAX_ROW && col[i+1][j]==GameUtils.BLANK) {
 
                                 col[i][j] = col[i+1][j] = GameUtils.PLAYER;
-                                tempValue = calculateHuristics(true, curValue, d-1);
+                                tempValue = findHuristics(true, curValue, d-1);
                                 col[i][j] = col[i+1][j] = GameUtils.BLANK;
 
                                 if (curValue >= tempValue) {
@@ -716,6 +678,11 @@ public class GameActivity extends Activity implements
             int curValue = -100000;
             int tempValue;
             cell = calculateAvailableCell();
+            int depth;
+
+            if (difficulty == GameUtils.EASY) depth = 2;
+            else if (difficulty == GameUtils.NORMAL) depth = 5;
+            else depth = 8;
 
             ret[0] = ret[1] = -1;
             for (int i=0; i<MAX_ROW; i++) {
@@ -725,7 +692,7 @@ public class GameActivity extends Activity implements
 
                             if (isItMyTurn) {
                                 col[i][j] = col[i][j + 1] = GameUtils.RIVAL;
-                                tempValue = calculateHuristics(false, curValue, 8);
+                                tempValue = findHuristics(false, curValue, depth);
                                 col[i][j] = col[i][j + 1] = GameUtils.BLANK;
                             } else {
                                 ret[0] = i*MAX_ROW + j;
@@ -743,7 +710,7 @@ public class GameActivity extends Activity implements
 
                             if (isItMyTurn) {
                                 col[i][j] = col[i + 1][j] = GameUtils.RIVAL;
-                                tempValue = calculateHuristics(false, curValue, 8);
+                                tempValue = findHuristics(false, curValue, depth);
                                 col[i][j] = col[i + 1][j] = GameUtils.BLANK;
                             } else {
                                 ret[0] = i*MAX_ROW + j;
@@ -880,85 +847,6 @@ public class GameActivity extends Activity implements
             }
             return ret;
         }
-
-        private int calculateMyScore(boolean isMe, int i1, int j1, int i2, int j2) {
-            int ret = giveScore(isMe, i1, j1);
-            ret += giveScore(isMe, i2, j2);
-            return ret;
-        }
-
-//        private int alphabeta(boolean myTurn, int alpha, int beta, int d) {
-////            Log.d(GameUtils.AI_THINKING_TAG, "I'm still thinking... "+myTurn+" "+parentValue);
-////            if (cell > 25) return 0;
-//            if (d==0) return heuristics();
-//            boolean validMove = false;
-//
-//            if (myTurn) {
-//                int i1, j1, i2, j2;
-//                for (int i = 0; i < newMoves.size(); i++) {
-//                    int x = newMoves.get(i)/MAX_COL;
-//                    int y = newMoves.get(i)%MAX_COL;
-//                    if (col[x][y] != GameUtils.BLANK || col[x][y] != GameUtils.BLOCKED) {
-//                        for (int k = 0; k < 4; k++) {
-//                            i1 = x + dx[k];
-//                            j1 = y + dy[k];
-//                            if (i1 >= 0 && i1 < MAX_ROW && j1 >= 0 && j1 < MAX_COL && col[i1][j1] == GameUtils.BLANK) {
-//                                for (int l = 0; l < 4; l++) {
-//                                    i2 = i1 + dx[l];
-//                                    j2 = j1 + dy[l];
-//                                    if (i2 >= 0 && i2 < MAX_ROW && j2 >= 0 && j2 < MAX_COL && col[i2][j2] == GameUtils.BLANK) {
-//                                        col[i1][j1] = col[i2][j2] = GameUtils.RIVAL;
-//                                        newMoves.add(i1 * MAX_ROW + j1);
-//                                        newMoves.add(i2 * MAX_ROW + j2);
-//                                        alpha = Math.max(alpha, alphabeta(false, alpha, beta, d - 1));
-//                                        col[i1][j1] = col[i2][j2] = GameUtils.BLANK;
-//                                        newMoves.remove(newMoves.size()-1);
-//                                        newMoves.remove(newMoves.size()-1);
-//
-//                                        validMove = true;
-//
-//                                        if (beta <= alpha) return alpha;
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//                return (!validMove ? -2 : alpha);
-//            } else {
-//                int i1, j1, i2, j2;
-//                for (int i = 0; i < newMoves.size(); i++) {
-//                    int x = newMoves.get(i)/MAX_COL;
-//                    int y = newMoves.get(i)%MAX_COL;
-//                    if (col[x][y] != GameUtils.BLANK || col[x][y] != GameUtils.BLOCKED) {
-//                        for (int k = 0; k < 4; k++) {
-//                            i1 = x + dx[k];
-//                            j1 = y + dy[k];
-//                            if (i1 >= 0 && i1 < MAX_ROW && j1 >= 0 && j1 < MAX_COL && col[i1][j1] == GameUtils.BLANK) {
-//                                for (int l = 0; l < 4; l++) {
-//                                    i2 = i1 + dx[l];
-//                                    j2 = j1 + dy[l];
-//                                    if (i2 >= 0 && i2 < MAX_ROW && j2 >= 0 && j2 < MAX_COL && col[i2][j2] == GameUtils.BLANK) {
-//                                        col[i1][j1] = col[i2][j2] = GameUtils.PLAYER;
-//                                        newMoves.add(i1 * MAX_ROW + j1);
-//                                        newMoves.add(i2 * MAX_ROW + j2);
-//                                        beta = Math.min(beta, alphabeta(true, alpha, beta, d - 1));
-//                                        newMoves.remove(newMoves.size()-1);
-//                                        newMoves.remove(newMoves.size() - 1);
-//                                        col[i1][j1] = col[i2][j2] = GameUtils.BLANK;
-//
-//                                        validMove = true;
-//
-//                                        if (beta <= alpha) return beta;
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//                return (!validMove ? 2 : beta);
-//            }
-//        }
 
         private int alphabeta(boolean myTurn, int alpha, int beta, int d) {
 //            Log.d(GameUtils.AI_THINKING_TAG, "I'm still thinking... "+myTurn+" "+parentValue);
@@ -1104,58 +992,6 @@ public class GameActivity extends Activity implements
                 }
             }
             return ret;
-        }
-
-        private int[] getPositionForMove(int[] ret, int move) {
-
-            int curScore = -10000;
-            int tempScore;
-
-            int x = move/MAX_COL, nx;
-            int y = move%MAX_COL, ny;
-
-//            for (int k=0; k<4; k++) {
-//                i1 = x + dx[k];
-//                j1 = y + dy[k];
-//                if (i1>=0 && i1<MAX_ROW && j1>=0 && j1<MAX_COL && col[i1][j1] == GameUtils.BLANK) {
-//                    for (int l=0; l<4; l++) {
-//                        i2 = i1 + dx[l];
-//                        j2 = j1 + dy[l];
-//                        if (i2>=0 && i2<MAX_ROW && j2>=0 && j2<MAX_COL && col[i2][j2] == GameUtils.BLANK) {
-//
-//                            if (isItMyTurn) {
-//                                col[i1][j1] = col[i2][j2] = GameUtils.RIVAL;
-////                                newMoves.add(i1 * MAX_ROW + j1);
-////                                newMoves.add(i2 * MAX_ROW + j2);
-//                                tempScore = alphabeta(false, curScore, 10000, 4);
-//                                col[i1][j1] = col[i2][j2] = GameUtils.BLANK;
-////                                newMoves.remove(newMoves.size()-1);
-////                                newMoves.remove(newMoves.size()-1);
-//                            } else {
-//                                ret[0] = i1 * MAX_ROW + j1;
-//                                ret[1] = i2 * MAX_ROW + j2;
-//                                return ret;
-//                            }
-//                            if (curScore < tempScore) {
-//                                ret[0] = i1 * MAX_ROW + j1;
-//                                ret[1] = i2 * MAX_ROW + j2;
-//                                curScore = tempScore;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-
-
-            return ret;
-        }
-
-        private int calculateAvailableCell() {
-            int c = 0;
-            for (int i=0; i<MAX_CELL; i++) {
-                if (gridState[i]==GameUtils.BLANK) c++;
-            }
-            return c;
         }
 
         @Override
