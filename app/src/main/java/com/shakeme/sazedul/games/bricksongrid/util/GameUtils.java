@@ -27,12 +27,12 @@ public class GameUtils {
     public static final String DIFFICULTY_TAG = "DIFFICULTY";
 
     public static final String DEFAULT_NAME = "MR. AWESOME";
-    public static final int DEFAULT_DIMENSION = 3;
-    public static final int DEFAULT_BLOCKED = 0;
+    public static final int DEFAULT_DIMENSION = 5;
+    public static final int DEFAULT_BLOCKED = 4;
     public static final boolean DEFAULT_MUSIC = true;
     public static final boolean DEFAULT_SOUND = true;
     public static final boolean DEFAULT_AI = true;
-    public static final boolean DEFAULT_CLASSIC = true;
+    public static final boolean DEFAULT_CLASSIC = false;
     public static final int DEFAULT_DIFFICULTY = 1;
 
     public static final int BLANK = 0;
