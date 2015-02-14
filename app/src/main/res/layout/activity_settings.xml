@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="#ffa4a89c"
     android:keepScreenOn="true"
     android:orientation="vertical"
     tools:context="com.shakeme.sazedul.games.bricksongrid.SettingsActivity">
@@ -10,7 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#0099cc"
+        android:background="#ffa4a89c"
         android:orientation="vertical">
 
         <TextView
@@ -28,7 +28,7 @@
             android:gravity="center"
             android:textStyle="bold"
             android:text="@string/action_settings"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
 
@@ -42,15 +42,15 @@
 
             <TextView
                 android:text="@string/player_name"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:textSize="16sp"
                 android:layout_weight="5"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content" />
             <EditText
                 android:id="@+id/txt_name"
-                android:background="@color/black_overlay"
-                android:textColor="@color/white"
+                android:background="@color/white"
+                android:textColor="@color/black"
                 android:layout_weight="6"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -67,15 +67,15 @@
 
             <TextView
                 android:text="@string/dimension"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:textSize="16sp"
                 android:layout_weight="5"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content" />
             <EditText
                 android:id="@+id/txt_dim"
-                android:background="@color/black_overlay"
-                android:textColor="@color/white"
+                android:background="@color/white"
+                android:textColor="@color/black"
                 android:layout_weight="6"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -93,15 +93,15 @@
 
             <TextView
                 android:text="@string/blocked_tile"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:textSize="16sp"
                 android:layout_weight="5"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content" />
             <EditText
                 android:id="@+id/txt_blocked_tile"
-                android:background="@color/black_overlay"
-                android:textColor="@color/white"
+                android:background="@color/white"
+                android:textColor="@color/black"
                 android:hint="@string/blocked_tile_hint"
                 android:inputType="number"
                 android:layout_weight="6"
@@ -117,11 +117,39 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
+            <TextView
+                android:text="@string/difficulty"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:layout_weight="5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+            <Spinner
+                android:id="@+id/spinner_difficulty"
+                android:background="@color/white"
+                android:textColor="@color/black"
+                android:entries="@array/difficulty"
+                android:layout_weight="6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/dimension_hint"
+                android:inputType="number" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:paddingLeft="@dimen/padding_all"
+            android:paddingRight="@dimen/padding_all"
+            android:paddingBottom="@dimen/padding_game"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
             <Switch
                 android:id="@+id/music_enabled"
                 android:text="@string/ambient_music"
                 android:checked="true"
                 android:textSize="16sp"
+                android:textColor="@color/black"
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content" />
@@ -140,6 +168,7 @@
                 android:text="@string/sound_effect"
                 android:checked="true"
                 android:textSize="16sp"
+                android:textColor="@color/black"
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content" />
@@ -158,6 +187,7 @@
                 android:text="@string/ai_rival"
                 android:checked="true"
                 android:textSize="16sp"
+                android:textColor="@color/black"
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content" />
@@ -176,6 +206,7 @@
                 android:text="@string/classic_mode"
                 android:checked="true"
                 android:textSize="16sp"
+                android:textColor="@color/black"
                 android:layout_weight="1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content" />

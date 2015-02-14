@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/padding_game"
-    android:background="#0099cc"
+    android:background="#ffa4a89c"
     android:keepScreenOn="true"
     tools:context="com.shakeme.sazedul.games.bricksongrid.GameActivity"
     android:orientation="vertical">
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content">
             <TextView
                 android:text="@string/you_score"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <TextView
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content">
             <TextView
                 android:text="@string/rival_score"
-                android:textColor="@color/white"
+                android:textColor="@color/black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <TextView

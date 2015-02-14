@@ -7,14 +7,17 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Switch;
 
 import com.shakeme.sazedul.games.bricksongrid.util.GameUtils;
 
 
 public class SettingsActivity extends Activity implements
+        AdapterView.OnItemSelectedListener,
         AudioManager.OnAudioFocusChangeListener,
         CompoundButton.OnCheckedChangeListener{
 
@@ -33,6 +36,7 @@ public class SettingsActivity extends Activity implements
 
     boolean music;
     boolean sound;
+    int difficulty;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +57,9 @@ public class SettingsActivity extends Activity implements
         aiEnabled = (Switch) findViewById(R.id.ai_enabled);
         classicEnabled = (Switch) findViewById(R.id.classic_enabled);
 
+        final Spinner spinner = (Spinner) findViewById(R.id.spinner_difficulty);
+        spinner.setOnItemSelectedListener(this);
+
         startPlayback();
 
         // Get the settings from SharedPreferences
@@ -61,6 +68,7 @@ public class SettingsActivity extends Activity implements
         final int dim = prefSettings.getInt(GameUtils.APP_TAG + GameUtils.DIMENSION_TAG, GameUtils.DEFAULT_DIMENSION);
         music = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.MUSIC_TAG, GameUtils.DEFAULT_MUSIC);
         sound = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.SOUND_TAG, GameUtils.DEFAULT_SOUND);
+        difficulty = prefSettings.getInt(GameUtils.APP_TAG + GameUtils.DIFFICULTY_TAG, GameUtils.DEFAULT_DIFFICULTY);
         final boolean ai = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.AI_TAG, GameUtils.DEFAULT_AI);
         final boolean classic = prefSettings.getBoolean(GameUtils.APP_TAG + GameUtils.CLASSIC_TAG, GameUtils.DEFAULT_CLASSIC);
 
@@ -74,6 +82,7 @@ public class SettingsActivity extends Activity implements
                 soundEnabled.setChecked(sound);
                 aiEnabled.setChecked(ai);
                 classicEnabled.setChecked(classic);
+                spinner.setSelection(difficulty);
             }
         });
 
@@ -135,6 +144,7 @@ public class SettingsActivity extends Activity implements
         editor.putString(GameUtils.APP_TAG+GameUtils.NAME_TAG, name);
         editor.putInt(GameUtils.APP_TAG + GameUtils.BLOCKED_TILE_TAG, blockedCell);
         editor.putInt(GameUtils.APP_TAG + GameUtils.DIMENSION_TAG, dim);
+        editor.putInt(GameUtils.APP_TAG+GameUtils.DIFFICULTY_TAG, difficulty);
         editor.putBoolean(GameUtils.APP_TAG + GameUtils.MUSIC_TAG, music);
         editor.putBoolean(GameUtils.APP_TAG + GameUtils.SOUND_TAG, sound);
         editor.putBoolean(GameUtils.APP_TAG + GameUtils.AI_TAG, ai);
@@ -205,5 +215,15 @@ public class SettingsActivity extends Activity implements
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         if (sound) mpButton.start();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        difficulty = position;
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }

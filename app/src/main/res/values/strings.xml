@@ -33,6 +33,11 @@
     <string name="rival_turn">My turn</string>
     <string name="dimension">Dimension</string>
     <string name="dimension_hint">3 to 9</string>
+    <string-array name="difficulty">
+        <item>Easy</item>
+        <item>Normal</item>
+        <item>Hard</item>
+    </string-array>
     <string name="lbl_instruction">
         Select new game for start a new game.\n\n
 
@@ -54,7 +59,9 @@
         \n\nBrought to you by:\n\n
 
         Sazedul Islam\n
-        Shantanu Mondol
+        Shantanu Mondol\n\n
+
+        A Bachelor House production
     </string>
     <string name="winner">Winner!</string>
     <string name="loser">Loser!</string>
@@ -62,5 +69,7 @@
     <string name="play_again">Tap to play again…</string>
     <string name="red_turn">Red\'s turn!</string>
     <string name="blue_turn">Blue\'s turn!</string>
+    <string name="welcome">Welcome!</string>
+    <string name="difficulty">Difficulty</string>
 
 </resources>

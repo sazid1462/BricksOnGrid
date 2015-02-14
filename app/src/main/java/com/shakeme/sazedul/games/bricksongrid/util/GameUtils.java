@@ -24,6 +24,7 @@ public class GameUtils {
     public static final String SOUND_TAG = "SOUND";
     public static final String AI_TAG = "AI";
     public static final String CLASSIC_TAG = "CLASSIC";
+    public static final String DIFFICULTY_TAG = "DIFFICULTY";
 
     public static final String DEFAULT_NAME = "MR. AWESOME";
     public static final int DEFAULT_DIMENSION = 3;
@@ -32,9 +33,13 @@ public class GameUtils {
     public static final boolean DEFAULT_SOUND = true;
     public static final boolean DEFAULT_AI = true;
     public static final boolean DEFAULT_CLASSIC = true;
+    public static final int DEFAULT_DIFFICULTY = 1;
 
     public static final int BLANK = 0;
     public static final int RIVAL = 2;
     public static final int PLAYER = 1;
     public static final int BLOCKED = 3;
+    public static final int EASY = 0;
+    public static final int NORMAL = 1;
+    public static final int HARD = 2;
 }

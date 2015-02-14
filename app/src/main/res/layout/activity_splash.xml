@@ -2,28 +2,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="@drawable/bricksongrid_port"
     android:orientation="vertical"
     android:keepScreenOn="true"
     tools:context="com.shakeme.sazedul.games.bricksongrid.SplashActivity">
 
-    <TextView android:id="@+id/water_mark"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="5"
-        android:textColor="#33b5e5"
-        android:textStyle="bold"
-        android:textSize="50sp"
-        android:gravity="center"
-        android:text="@string/app_name_on_splash" />
+    <!--<com.shakeme.sazedul.games.bricksongrid.util.GameImageView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="fill_parent"-->
+        <!--android:layout_weight="10"-->
+        <!--android:adjustViewBounds="true"-->
+        <!--android:src="@drawable/bricksongrid_port"-->
+        <!--android:id="@+id/imageView" />-->
+
+    <!--<TextView android:id="@+id/water_mark"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="0dp"-->
+        <!--android:layout_weight="5"-->
+        <!--android:textColor="#33b5e5"-->
+        <!--android:textStyle="bold"-->
+        <!--android:textSize="50sp"-->
+        <!--android:gravity="center"-->
+        <!--android:text="@string/app_name_on_splash" />-->
+
     <TextView android:id="@+id/welcome"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="4"
-        android:textColor="#77ff77"
+        android:layout_height="match_parent"
+        android:textColor="#ff1656ff"
         android:textStyle="bold"
         android:textSize="24sp"
-        android:gravity="center_horizontal"
-        android:text="@string/app_name_on_splash" />
+        android:gravity="bottom|center_horizontal"
+        android:text="@string/welcome"
+        android:padding="30dp" />
 
 </LinearLayout>

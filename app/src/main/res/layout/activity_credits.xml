@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="#ffa4a89c"
     android:keepScreenOn="true"
     android:orientation="vertical"
     tools:context="com.shakeme.sazedul.games.bricksongrid.InstructionActivity">
@@ -11,7 +11,7 @@
         android:id="@+id/linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#0099cc"
+        android:background="#ffa4a89c"
         android:orientation="vertical">
 
         <LinearLayout
@@ -21,14 +21,14 @@
             android:paddingStart="@dimen/abc_action_bar_stacked_max_height"
             android:paddingEnd="@dimen/abc_action_bar_stacked_max_height"
             android:paddingTop="@dimen/abc_action_bar_stacked_max_height"
-            android:background="#0099cc"
+            android:background="#ffa4a89c"
             style="@style/ButtonBar"
             android:orientation="horizontal">
             <Button
                 android:drawablePadding="@dimen/padding_all"
                 android:drawableLeft="@drawable/ic_action_back"
                 android:drawableStart="@drawable/ic_action_back"
-                android:background="#0099cc"
+                android:background="#ffa4a89c"
                 android:text="@string/app_title"
                 android:textSize="@dimen/main_menu_title"
                 android:textStyle="bold"
@@ -42,7 +42,7 @@
             android:gravity="center"
             android:textStyle="bold"
             android:text="@string/btn_credits"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:id="@+id/textView" />
@@ -63,8 +63,24 @@
             android:textSize="@dimen/abc_text_size_body_1_material"
             android:gravity="center"
             android:textStyle="bold"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
     </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffa4a89c"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_centerInParent="true">
+        <ImageView
+            android:layout_width="match_parent"
+            android:src="@drawable/bh_presents_2"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true" />
+    </LinearLayout>
 </RelativeLayout>

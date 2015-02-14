@@ -17,7 +17,6 @@ public class SplashActivity extends Activity {
     // Animation
     Animation animFadein;
     Animation animBlink;
-    TextView txtWaterMark;
     TextView txtWelcome;
     private SharedPreferences prefSettings;
 
@@ -32,14 +31,12 @@ public class SplashActivity extends Activity {
         // load the animation
         animFadein = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_in);
         animBlink = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.welcome);
-        txtWaterMark = (TextView) findViewById(R.id.water_mark);
         txtWelcome = (TextView) findViewById(R.id.welcome);
 
         if (prefSettings.contains(GameUtils.APP_TAG+GameUtils.NAME_TAG)) {
             txtWelcome.setText("Welcome back "+prefSettings.getString(GameUtils.APP_TAG+GameUtils.NAME_TAG, GameUtils.DEFAULT_NAME));
         }
 
-        txtWaterMark.startAnimation(animFadein);
         txtWelcome.startAnimation(animBlink);
 
         new Handler().postDelayed(new Runnable() {
