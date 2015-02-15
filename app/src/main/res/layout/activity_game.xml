@@ -175,6 +175,14 @@
             android:visibility="gone"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/hints"
+            android:text="@string/hints"
+            android:gravity="center_horizontal"
+            android:textColor="@color/black"
+            android:visibility="visible"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <ProgressBar

@@ -37,8 +37,22 @@
         <item>Normal</item>
         <item>Hard</item>
     </string-array>
+    <string-array name="ai_hints_and_taunts">
+        <item>You are good at this!</item>
+        <item>I am gonna win no matter how well you play!</item>
+        <item>Is that all you\'ve got?</item>
+        <item>Are you playing seriously?</item>
+        <item>Do you really think you can beat me?</item>
+        <item>Let me give you an advice, never trust an AI.</item>
+        <item>Seriously, humans are so predictable.</item>
+        <item>Believe me, I was a human once.</item>
+        <item>A wise man once told me, winning is in my electricity!</item>
+        <item>To place a brick touch and drag your finger to connect two adjacent cells. Any two cells are called adjacent if they share a common edge.</item>
+    </string-array>
     <string name="lbl_instruction">
         Select new game for start a new game.\n\n
+
+        To place a brick touch and drag your finger to connect two adjacent cells. Any two cells are called adjacent if they share a common edge.\n\n
 
         In the settings you can set the preferred settings of yours.\n
         Name: Type your name if you want.\n
@@ -71,5 +85,6 @@
     <string name="welcome">Welcome!</string>
     <string name="difficulty">Difficulty</string>
     <string name="blocked_tile_hint"><![CDATA[<= Number of cells/2]]></string>
+    <string name="hints">Good Luck!</string>
 
 </resources>

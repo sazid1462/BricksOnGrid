@@ -68,6 +68,7 @@ public class GameActivity extends Activity implements
     private TextView txtYourTurn;
     private TextView txtRedTurn;
     private TextView txtBluTurn;
+    private TextView txtHints;
     private ProgressBar progressAI;
 
     private boolean playerTurn;
@@ -87,6 +88,8 @@ public class GameActivity extends Activity implements
     private boolean aIWin;
 
     private ArrayList<Integer>moves;
+    private String[] aIHints;
+    private int cnt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +129,7 @@ public class GameActivity extends Activity implements
         MAX_CELL = GameUtils.MAX_CELL;
         MAX_ROW = GameUtils.MAX_ROW;
         MAX_COL = GameUtils.MAX_COL;
+        aIHints = getResources().getStringArray(R.array.ai_hints_and_taunts);
 
         // Instantiate variables
         gameView = (GridView) findViewById(R.id.gridView);
@@ -140,6 +144,7 @@ public class GameActivity extends Activity implements
         txtRivalTurn = (TextView) findViewById(R.id.rival_turn);
         txtRedTurn = (TextView) findViewById(R.id.red_turn);
         txtBluTurn = (TextView) findViewById(R.id.blue_turn);
+        txtHints = (TextView) findViewById(R.id.hints);
         progressAI = (ProgressBar) findViewById(R.id.progress_ai);
 
         initializeGame();
@@ -238,6 +243,7 @@ public class GameActivity extends Activity implements
 
         playerWin = false;
         aIWin = false;
+        cnt = 0;
 
         gameView.startAnimation(animFadein);
         gameView.setVisibility(View.VISIBLE);
@@ -277,23 +283,35 @@ public class GameActivity extends Activity implements
     }
 
     private void showWhoseTurn() {
-        if (aiEnabled) {
-            if (playerTurn) {
-                txtYourTurn.setVisibility(View.VISIBLE);
-                txtRivalTurn.setVisibility(View.GONE);
-            } else {
-                txtYourTurn.setVisibility(View.GONE);
-                txtRivalTurn.setVisibility(View.VISIBLE);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (aiEnabled) {
+                    if (playerTurn) {
+                        txtYourTurn.setVisibility(View.VISIBLE);
+                        txtRivalTurn.setVisibility(View.GONE);
+                        if (cnt==0) {
+                            txtHints.setText(aIHints[aIHints.length-1]);
+                            cnt++;
+                        } else {
+                            txtHints.setText(aIHints[(((int)(Math.round(Math.random() * 997)) % (aIHints.length-1)))]);
+                            cnt++;
+                        }
+                    } else {
+                        txtYourTurn.setVisibility(View.GONE);
+                        txtRivalTurn.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    if (playerTurn) {
+                        txtRedTurn.setVisibility(View.VISIBLE);
+                        txtBluTurn.setVisibility(View.GONE);
+                    } else {
+                        txtRedTurn.setVisibility(View.GONE);
+                        txtBluTurn.setVisibility(View.VISIBLE);
+                    }
+                }
             }
-        } else {
-            if (playerTurn) {
-                txtRedTurn.setVisibility(View.VISIBLE);
-                txtBluTurn.setVisibility(View.GONE);
-            } else {
-                txtRedTurn.setVisibility(View.GONE);
-                txtBluTurn.setVisibility(View.VISIBLE);
-            }
-        }
+        } );
     }
 
     private void notifyAI() {
@@ -606,7 +624,7 @@ public class GameActivity extends Activity implements
             }
         }
 
-        private int findHuristics(boolean myTurn, int parentValue, int d) {
+        private int findHeuristics(boolean myTurn, int parentValue, int d) {
             Log.d(GameUtils.AI_THINKING_TAG, "I'm still thinking... "+myTurn+" "+d);
             if (cell > 25) return 0;
             if (d==0) return 0;
@@ -620,7 +638,7 @@ public class GameActivity extends Activity implements
                             if (j+1<MAX_COL && col[i][j+1]==GameUtils.BLANK) {
 
                                 col[i][j] = col[i][j+1] = GameUtils.RIVAL;
-                                curValue = Math.max(curValue, findHuristics(false, curValue, d-1));
+                                curValue = Math.max(curValue, findHeuristics(false, curValue, d-1));
                                 col[i][j] = col[i][j+1] = GameUtils.BLANK;
 
                                 if (curValue == 1) return curValue;
@@ -629,7 +647,7 @@ public class GameActivity extends Activity implements
                             if (i+1<MAX_ROW && col[i+1][j]==GameUtils.BLANK) {
 
                                 col[i][j] = col[i+1][j] = GameUtils.RIVAL;
-                                curValue = Math.max(curValue, findHuristics(false, curValue, d-1));
+                                curValue = Math.max(curValue, findHeuristics(false, curValue, d-1));
                                 col[i][j] = col[i+1][j] = GameUtils.BLANK;
 
                                 if (curValue == 1) return  curValue;
@@ -647,7 +665,7 @@ public class GameActivity extends Activity implements
                             if (j+1<MAX_COL && col[i][j+1]==GameUtils.BLANK) {
 
                                 col[i][j] = col[i][j+1] = GameUtils.PLAYER;
-                                curValue = Math.min(curValue, findHuristics(true, curValue, d-1));
+                                curValue = Math.min(curValue, findHeuristics(true, curValue, d-1));
                                 col[i][j] = col[i][j+1] = GameUtils.BLANK;
 
                                 if (curValue == -1) return curValue;
@@ -656,7 +674,7 @@ public class GameActivity extends Activity implements
                             if (i+1<MAX_ROW && col[i+1][j]==GameUtils.BLANK) {
 
                                 col[i][j] = col[i+1][j] = GameUtils.PLAYER;
-                                curValue = Math.min(curValue, findHuristics(true, curValue, d-1));
+                                curValue = Math.min(curValue, findHeuristics(true, curValue, d-1));
                                 col[i][j] = col[i+1][j] = GameUtils.BLANK;
 
                                 if (curValue == -1) return curValue;
@@ -676,8 +694,8 @@ public class GameActivity extends Activity implements
             cell = calculateAvailableCell();
             int depth;
 
-            if (difficulty == GameUtils.EASY) depth = 1;
-            else if (difficulty == GameUtils.NORMAL) depth = Math.max(1, ((dim*dim)/(cell*2)));
+            if (difficulty == GameUtils.EASY) depth = 0;
+            else if (difficulty == GameUtils.NORMAL) depth = 1;
             else depth = Math.max(5, (dim*dim)/cell);
 
             ret[0] = ret[1] = -1;
@@ -688,7 +706,7 @@ public class GameActivity extends Activity implements
 
                             if (isItMyTurn) {
                                 col[i][j] = col[i][j + 1] = GameUtils.RIVAL;
-                                tempValue = findHuristics(false, curValue, depth);
+                                tempValue = findHeuristics(false, curValue, depth);
                                 col[i][j] = col[i][j + 1] = GameUtils.BLANK;
                             } else {
                                 ret[0] = i*MAX_ROW + j;
@@ -706,7 +724,7 @@ public class GameActivity extends Activity implements
 
                             if (isItMyTurn) {
                                 col[i][j] = col[i + 1][j] = GameUtils.RIVAL;
-                                tempValue = findHuristics(false, curValue, depth);
+                                tempValue = findHeuristics(false, curValue, depth);
                                 col[i][j] = col[i + 1][j] = GameUtils.BLANK;
                             } else {
                                 ret[0] = i*MAX_ROW + j;
