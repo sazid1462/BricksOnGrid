@@ -77,19 +77,22 @@
         android:layout_height="fill_parent">
         <TextView
             android:text="@string/winner"
-            android:gravity="center_horizontal"
+            android:gravity="bottom|center_horizontal"
             android:textSize="48sp"
             android:textColor="@color/red"
             android:clickable="false"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+            android:layout_weight="2"
+            android:layout_height="0dp" />
         <TextView
             android:text="@string/try_again"
-            android:gravity="center_horizontal"
+            android:gravity="top|center_horizontal"
             android:textColor="@color/title"
+            android:textSize="24sp"
             android:clickable="false"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+            android:layout_weight="3"
+            android:layout_height="0dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -101,11 +104,12 @@
         android:layout_height="fill_parent">
         <TextView
             android:text="@string/play_again"
-            android:gravity="center_horizontal"
+            android:gravity="center"
             android:textColor="@color/title"
+            android:textSize="32sp"
             android:clickable="false"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="fill_parent" />
     </LinearLayout>
 
     <LinearLayout
@@ -117,19 +121,22 @@
         android:layout_height="fill_parent">
         <TextView
             android:text="@string/loser"
-            android:gravity="center_horizontal"
+            android:gravity="bottom|center_horizontal"
             android:textColor="@color/blue"
             android:textSize="48sp"
             android:clickable="false"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+            android:layout_weight="2"
+            android:layout_height="0dp" />
         <TextView
             android:text="@string/try_again"
-            android:gravity="center_horizontal"
+            android:gravity="top|center_horizontal"
             android:textColor="@color/title"
+            android:textSize="24sp"
             android:clickable="false"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+            android:layout_weight="3"
+            android:layout_height="0dp" />
     </LinearLayout>
 
     <LinearLayout

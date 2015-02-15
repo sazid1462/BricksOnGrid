@@ -19,7 +19,7 @@ import com.shakeme.sazedul.games.bricksongrid.util.GameUtils;
 public class SettingsActivity extends Activity implements
         AdapterView.OnItemSelectedListener,
         AudioManager.OnAudioFocusChangeListener,
-        CompoundButton.OnCheckedChangeListener{
+        CompoundButton.OnCheckedChangeListener {
 
     private SharedPreferences prefSettings;
 
@@ -137,7 +137,7 @@ public class SettingsActivity extends Activity implements
         boolean classic = classicEnabled.isChecked();
 
         if (dim > 9) dim = 9;
-        if (blockedCell > dim*dim) blockedCell = dim*dim;
+        if (blockedCell > dim*dim/2) blockedCell = dim*dim/2;
 
         SharedPreferences.Editor editor = prefSettings.edit();
 
